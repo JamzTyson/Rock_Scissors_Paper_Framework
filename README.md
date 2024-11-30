@@ -48,16 +48,17 @@ The corresponding rules would be:
 * Batman smashes Scissors.
 * Rock crushes Lizard.
 
-If you make changes to CHOICES, ensure that you run the tests.
+If you make changes to CHOICES, ensure that you run
+[test_validate_choices.py](rsp/tests/test_validate_choices.py).
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.7 or higher.
+- Python 3.10 or higher.
 - Pytest
 
-See the requirements-dev.txt file for full details of development tools.
+See the [pyproject.toml](pyproject.toml) file for full details.
 
 ## Running the Game
 
