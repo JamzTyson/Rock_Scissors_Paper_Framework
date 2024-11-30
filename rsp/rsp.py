@@ -34,35 +34,6 @@ import sys
 
 CHOICES = ('Rock', 'Paper', 'Scissors')
 
-DEBUG = False
-
-
-def validate_choices() -> None:
-    """Basic check that CHOICES looks valid.
-
-    Raises:
-        AssertionError: Number of choices must be > 1.
-        AssertionError: Number of choices must be odd.
-        AssertionError: All choices must begin with a unique letter.
-        AssertionError: Choices must not begin with 'q'.
-    """
-    if len(CHOICES) <= 1:
-        assertion_message = "Number of CHOICES must be > 1."
-        raise AssertionError(assertion_message)
-
-    if len(CHOICES) % 2 == 0:
-        assertion_message = "Number of CHOICES must be odd."
-        raise AssertionError(assertion_message)
-
-    if len(set(name[0] for name in CHOICES)) != len(CHOICES):
-        assertion_message = "Each choice must have a unique first letter."
-        raise AssertionError(assertion_message)
-
-    if any(name[0].lower() == 'q' for name in CHOICES):
-        assertion_message = "No choice can start with 'q'."
-        raise AssertionError(assertion_message)
-
-
 # Map short names to full names.
 CHOICES_NAME_MAP = {name[0].lower(): name for name in CHOICES}
 
@@ -70,6 +41,7 @@ CHOICES_NAME_MAP = {name[0].lower(): name for name in CHOICES}
 @dataclass
 class Scores:
     """Tally of score for games played."""
+
     player: int = 0
     robo: int = 0
 
@@ -206,22 +178,25 @@ scores = Scores()
 display_result(scores)
 
 
-if DEBUG:
-    validate_choices()
+def main():
+    """Game loop."""
+    while True:
+        player_hand = player_choice()
+        robo_hand = robo_choice()
 
-while True:
-    player_hand = player_choice()
-    robo_hand = robo_choice()
+        result = is_player_winner(player_hand, robo_hand)
 
-    result = is_player_winner(player_hand, robo_hand)
+        if result is None:
+            display_result(scores, player_hand, robo_hand, "DRAW")
 
-    if result is None:
-        display_result(scores, player_hand, robo_hand, "DRAW")
+        elif result:
+            scores.player += 1
+            display_result(scores, player_hand, robo_hand, "WIN")
 
-    elif result:
-        scores.player += 1
-        display_result(scores, player_hand, robo_hand, "WIN")
+        else:
+            scores.robo += 1
+            display_result(scores, player_hand, robo_hand, "LOSE")
 
-    else:
-        scores.robo += 1
-        display_result(scores, player_hand, robo_hand, "LOSE")
+
+if __name__ == '__main__':
+    main()
