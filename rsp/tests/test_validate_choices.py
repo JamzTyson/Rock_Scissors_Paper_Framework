@@ -1,4 +1,4 @@
-"""Tests to validate CHOICES list."""
+"""Tests to validate CHOICES tuple."""
 
 from collections import defaultdict
 
@@ -30,6 +30,18 @@ def test_not_start_with_q():
     """No choice can begin with 'Q' (reserved for 'Quit')."""
     for choice in CHOICES:
         assert not choice[0].lower() == 'q', f"Bad option: {choice}"
+
+
+def test_not_start_with_space():
+    """No choice can begin with a space."""
+    for choice in CHOICES:
+        assert not choice[0].lower() == ' ', f"Bad option: {choice}"
+
+
+def test_no_empty_names():
+    """No choice can be an empty string."""
+    for choice in CHOICES:
+        assert choice != '', "Bad option: Empty string"
 
 
 def test_unique_first_letter():
