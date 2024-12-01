@@ -105,7 +105,7 @@ def player_choice() -> str:
             return chosen
 
         if 'q' == choice:
-            sys.exit("Bye")
+            quit_game()
 
         print(f"Invalid choice. Must be one of: {formatted_input_choices()}.")
 
@@ -182,6 +182,12 @@ def is_player_winner(player: str, robo: str) -> bool | None:
         return None
 
     return robo in beats(player)
+
+
+def quit_game():
+    """Quit application."""
+    print("Bye")
+    sys.exit(0)
 
 
 def main():
