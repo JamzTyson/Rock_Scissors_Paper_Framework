@@ -65,3 +65,37 @@ def test_formatted_choices_caching(monkeypatch):
     first_result = rsp.formatted_choices()
     cached_result = rsp.formatted_choices()
     assert cached_result is first_result, "The result was not cached."
+
+
+@pytest.mark.parametrize(
+    'choices, expected', [
+        # Default test.
+        (('Rock', 'Paper', 'Scissors'), "'R', 'S', 'P'"),
+        # Mixed  case names.
+        (('aaA', 'BBB', 'Ccc', 'dDD'), "'A', 'B', 'C', 'D'"),
+        # Empty test_input.
+        (tuple(), ''),
+        # Single name.
+        (('Rock',), "'R'"),
+        # Numeric characters.
+        (('123', '456', '789'), "'1', '4', '7'"),
+        # Names with spaces.
+        (('Hello World', 'a b c'), "'H', 'A'")
+    ]
+)
+def test_formatted_input_choices(monkeypatch, choices, expected):
+    """Test that formatted_input_choices() returns formatted first letters.
+
+    The returned string should be in the form: "'R', 'P', 'S'"
+    """
+    rsp.formatted_input_choices.cache_clear()
+    monkeypatch.setattr(rsp, 'CHOICES', choices)
+
+
+def test_formatted_input_choices_caching(monkeypatch):
+    """Test map_initial_to_name caches its results."""
+    choices = ('Abc', 'Def', 'Ghi')
+    monkeypatch.setattr(rsp, 'CHOICES', choices)
+    first_result = rsp.formatted_input_choices()
+    cached_result = rsp.formatted_input_choices()
+    assert cached_result is first_result, "The result was not cached."
