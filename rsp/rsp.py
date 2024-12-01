@@ -34,9 +34,6 @@ import sys
 
 CHOICES = ('Rock', 'Paper', 'Scissors')
 
-# Map short names to full names.
-CHOICES_NAME_MAP = {name[0].lower(): name for name in CHOICES}
-
 
 @dataclass
 class Scores:
@@ -55,6 +52,19 @@ def clear_screen() -> None:
         print('\n')  # In Thonny we settle for a new line.
         # Escape codes may work for other Terminal emulators.
         print("\n\033[H\033[J", end="")
+
+
+@cache
+def map_initial_to_name(choices: tuple[str]) -> dict[str, str]:
+    """Map lowercase initial letter of name in choices, to name.
+
+    Args:
+        choices (tuple[str]): Game choices.
+
+    Returns:
+        dict[str: str]: key=first_letter, value=name.
+    """
+    return {name[0].lower(): name for name in choices}
 
 
 @cache
@@ -90,7 +100,7 @@ def player_choice() -> str:
         choice = input(f"{formatted_choices()}, or [Q] to quit: ")
         choice = choice.strip().lower()
 
-        chosen = CHOICES_NAME_MAP.get(choice)
+        chosen = map_initial_to_name(CHOICES).get(choice)
         if chosen is not None:
             return chosen
 
@@ -174,12 +184,11 @@ def is_player_winner(player: str, robo: str) -> bool | None:
     return robo in beats(player)
 
 
-scores = Scores()
-display_result(scores)
-
-
 def main():
     """Game loop."""
+    scores = Scores()
+    display_result(scores)
+
     while True:
         player_hand = player_choice()
         robo_hand = robo_choice()
