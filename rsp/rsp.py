@@ -74,7 +74,7 @@ def formatted_choices() -> str:
     Returns:
         str: The formatted string in the form '[R]ock, [P]aper, [S]cissors'.
     """
-    return ', '.join([f"[{choice[0]}]{choice[1:]}" for choice in CHOICES])
+    return ', '.join([f"[{choice[0].upper()}]{choice[1:]}" for choice in CHOICES])
 
 
 @cache

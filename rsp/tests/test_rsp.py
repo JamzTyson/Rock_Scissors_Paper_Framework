@@ -27,9 +27,41 @@ def test_map_initial_to_name(test_input, expected):
     assert rsp.map_initial_to_name(test_input) == expected
 
 
-@pytest.mark.parametrize("choices", ('Abc', 'Def', 'Ghi'))
-def test_map_initial_to_name_caching(choices):
+def test_map_initial_to_name_caching():
     """Test map_initial_to_name caches its results."""
+    choices = ('Abc', 'Def', 'Ghi')
     first_result = rsp.map_initial_to_name(choices)
     cached_result = rsp.map_initial_to_name(choices)
+    assert cached_result is first_result, "The result was not cached."
+
+
+@pytest.mark.parametrize(
+    'choices, expected', [
+        # Default test.
+        (('Rock', 'Paper', 'Scissors'), '[R]ock, [P]aper, [S]cissors'),
+        # Mixed  case names.
+        (('aaA', 'BBB', 'Ccc', 'dDD'), '[A]aA, [B]BB, [C]cc, [D]DD'),
+        # Empty test_input.
+        (tuple(), ''),
+        # Single name.
+        (('Rock',), '[R]ock'),
+        # Numeric characters.
+        (('123', '456', '789'), '[1]23, [4]56, [7]89'),
+        # Names with spaces.
+        (('Hello World', 'a b c'), '[H]ello World, [A] b c')
+    ]
+)
+def test_formatted_choices(monkeypatch, choices, expected):
+    """Test return value matches format '[R]ock, [P]aper, [S]cissors'."""
+    rsp.formatted_choices.cache_clear()
+    monkeypatch.setattr(rsp, 'CHOICES', choices)
+    assert rsp.formatted_choices() == expected
+
+
+def test_formatted_choices_caching(monkeypatch):
+    """Test map_initial_to_name caches its results."""
+    choices = ('Abc', 'Def', 'Ghi')
+    monkeypatch.setattr(rsp, 'CHOICES', choices)
+    first_result = rsp.formatted_choices()
+    cached_result = rsp.formatted_choices()
     assert cached_result is first_result, "The result was not cached."
