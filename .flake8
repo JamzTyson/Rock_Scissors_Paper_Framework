@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 88
+exclude = .venv,.git,__pycache__
+
+[flake8-docstrings]
+docstring-convention = "google"

@@ -20,9 +20,5 @@ pytest = "^8.3.3"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.flake8]
-max-line-length = 88
-docstring-convention = "google"
-
 [tool.pylint]
 max-line-length = 88
