@@ -32,9 +32,6 @@ import random
 import sys
 
 
-CHOICES = ('Rock', 'Paper', 'Scissors')
-
-
 @dataclass
 class Scores:
     """Tally of score for games played."""
@@ -55,7 +52,7 @@ def clear_screen() -> None:
 
 
 @cache
-def map_initial_to_name(choices: tuple[str]) -> dict[str, str]:
+def map_initial_to_name(choices: tuple[str, ...]) -> dict[str, str]:
     """Map lowercase initial letter of name in choices, to name.
 
     Args:
@@ -68,17 +65,17 @@ def map_initial_to_name(choices: tuple[str]) -> dict[str, str]:
 
 
 @cache
-def formatted_choices() -> str:
+def formatted_choices(choices: tuple[str, ...]) -> str:
     """Return string of choices.
 
     Returns:
         str: The formatted string in the form '[R]ock, [P]aper, [S]cissors'.
     """
-    return ', '.join([f"[{choice[0].upper()}]{choice[1:]}" for choice in CHOICES])
+    return ', '.join([f"[{choice[0].upper()}]{choice[1:]}" for choice in choices])
 
 
 @cache
-def formatted_input_choices() -> str:
+def formatted_input_choices(choices: tuple[str, ...]) -> str:
     """Return string of input choice options.
 
     Although 'Q'/'q' is a valid input, it is for quitting rather than
@@ -87,20 +84,20 @@ def formatted_input_choices() -> str:
     Returns:
         str: The formatted string in the form 'R', 'P', 'S'.
     """
-    return ', '.join([f"'{name[0]}'" for name in CHOICES])
+    return ', '.join([f"'{name[0]}'" for name in choices])
 
 
-def player_choice() -> str:
+def player_choice(choices: tuple[str, ...]) -> str:
     """Prompt and return human choice from CHOICES.
 
     Returns:
         str: The selected item from CHOICES.
     """
     while True:
-        choice = input(f"{formatted_choices()}, or [Q] to quit: ")
+        choice = input(f"{formatted_choices(choices)}, or [Q] to quit: ")
         choice = choice.strip().lower()
 
-        chosen = map_initial_to_name(CHOICES).get(choice)
+        chosen = map_initial_to_name(choices).get(choice)
         if chosen is not None:
             return chosen
 
@@ -110,13 +107,16 @@ def player_choice() -> str:
         print(f"Invalid choice. Must be one of: {formatted_input_choices()}.")
 
 
-def robo_choice() -> str:
+def robo_choice(choices: tuple[str, ...]) -> str:
     """Return computer choice.
+
+    Args:
+        choices (tuple): Game-play choices.
 
     Returns:
         str: The randomly selected item from CHOICES.
     """
-    return random.choice(CHOICES)
+    return random.choice(choices)
 
 
 def display_result(game_score: Scores,
@@ -140,7 +140,7 @@ def display_result(game_score: Scores,
 
 
 @cache
-def beats(hand_choice: str) -> list[str]:
+def beats(hand_choice: str, choices: tuple[str, ...]) -> list[str]:
     """Return hand that is beaten by hand_choice.
 
     This assumes that each choice in CHOICES beats the item(s) that
@@ -150,18 +150,19 @@ def beats(hand_choice: str) -> list[str]:
 
     Args:
         hand_choice (str): The item from CHOICES to compare.
+        choices (tuple): Game-play choices.
 
     Returns:
         str: The CHOICES items that beat 'hand_choice'.
     """
-    idx = CHOICES.index(hand_choice)
-    number_of_beaten_items = (len(CHOICES) - 1) // 2
-    beaten = [CHOICES[idx - i - 1] for i in range(number_of_beaten_items)]
+    idx = choices.index(hand_choice)
+    number_of_beaten_items = (len(choices) - 1) // 2
+    beaten = [choices[idx - i - 1] for i in range(number_of_beaten_items)]
 
     return beaten
 
 
-def is_player_winner(player: str, robo: str) -> bool | None:
+def is_player_winner(player: str, robo: str, choices: tuple[str, ...]) -> bool | None:
     """Return True, False or None to indicate result.
 
     Args:
@@ -181,7 +182,7 @@ def is_player_winner(player: str, robo: str) -> bool | None:
     if player == robo:
         return None
 
-    return robo in beats(player)
+    return robo in beats(player, choices)
 
 
 def quit_game():
@@ -190,16 +191,16 @@ def quit_game():
     sys.exit(0)
 
 
-def main():
+def main(choices: tuple[str, ...]):
     """Game loop."""
     scores = Scores()
     display_result(scores)
 
     while True:
-        player_hand = player_choice()
-        robo_hand = robo_choice()
+        player_hand = player_choice(choices)
+        robo_hand = robo_choice(choices)
 
-        result = is_player_winner(player_hand, robo_hand)
+        result = is_player_winner(player_hand, robo_hand, choices)
 
         if result is None:
             display_result(scores, player_hand, robo_hand, "DRAW")
@@ -214,4 +215,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    CHOICES = ('Rock', 'Paper', 'Scissors')
+    main(CHOICES)
