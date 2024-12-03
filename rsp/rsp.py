@@ -194,6 +194,19 @@ def quit_game():
     sys.exit(0)
 
 
+def choices_config() -> tuple[str, ...]:
+    """Return the names of the game choices as a tuple.
+
+    By default, this returns the strings 'Rock', 'Paper', 'Scissors' (DEFAULT_CHOICES).
+    If you wish to add more choices, do so here rather than changing DEFAULT_CHOICES,
+    and run test_validate_choices.py with pytest.
+
+    Returns:
+        tuple: The game choice names.
+    """
+    return DEFAULT_CHOICES
+
+
 def main(choices: tuple[str, ...]):
     """Game loop."""
     scores = Scores()
@@ -218,4 +231,5 @@ def main(choices: tuple[str, ...]):
 
 
 if __name__ == '__main__':
-    main(DEFAULT_CHOICES)
+    game_choices = choices_config()
+    main(game_choices)
