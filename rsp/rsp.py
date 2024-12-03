@@ -14,13 +14,13 @@ The game may be extended with more choices that follow the rules:
     3. No choice may begin with 'Q' (reserved for 'Quit').
     4. All choices must begin with a unique letter.
 
-If CHOICES is modified, it is highly recommended to test by running
+If DEFAULT_CHOICES is modified, it is highly recommended to test by running
 the program with DEBUG enabled.
 
-Example with more CHOICES options:
+Example with more DEFAULT_CHOICES options:
 
     ```python
-    CHOICES = ('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors')
+    DEFAULT_CHOICES = ('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors')
     ```
 
 """
@@ -30,6 +30,9 @@ from functools import cache
 import os
 import random
 import sys
+
+
+DEFAULT_CHOICES = ('Rock', 'Paper', 'Scissors')
 
 
 @dataclass
@@ -84,14 +87,14 @@ def formatted_input_choices(choices: tuple[str, ...]) -> str:
     Returns:
         str: The formatted string in the form 'R', 'P', 'S'.
     """
-    return ', '.join([f"'{name[0]}'" for name in choices])
+    return ', '.join([f"'{name[0].upper()}'" for name in choices])
 
 
 def player_choice(choices: tuple[str, ...]) -> str:
-    """Prompt and return human choice from CHOICES.
+    """Prompt and return human choice from DEFAULT_CHOICES.
 
     Returns:
-        str: The selected item from CHOICES.
+        str: The selected item from DEFAULT_CHOICES.
     """
     while True:
         choice = input(f"{formatted_choices(choices)}, or [Q] to quit: ")
@@ -104,7 +107,7 @@ def player_choice(choices: tuple[str, ...]) -> str:
         if 'q' == choice:
             quit_game()
 
-        print(f"Invalid choice. Must be one of: {formatted_input_choices()}.")
+        print(f"Invalid choice. Must be one of: {formatted_input_choices(choices)}.")
 
 
 def robo_choice(choices: tuple[str, ...]) -> str:
@@ -114,7 +117,7 @@ def robo_choice(choices: tuple[str, ...]) -> str:
         choices (tuple): Game-play choices.
 
     Returns:
-        str: The randomly selected item from CHOICES.
+        str: The randomly selected item from DEFAULT_CHOICES.
     """
     return random.choice(choices)
 
@@ -143,17 +146,17 @@ def display_result(game_score: Scores,
 def beats(hand_choice: str, choices: tuple[str, ...]) -> list[str]:
     """Return hand that is beaten by hand_choice.
 
-    This assumes that each choice in CHOICES beats the item(s) that
+    This assumes that each choice in DEFAULT_CHOICES beats the item(s) that
     are cyclicly before the hand_choice, and is beaten by items after
     hand_choice. The result is cached as it only needs to be calculated
-    once for each item in CHOICES.
+    once for each item in DEFAULT_CHOICES.
 
     Args:
-        hand_choice (str): The item from CHOICES to compare.
+        hand_choice (str): The item from DEFAULT_CHOICES to compare.
         choices (tuple): Game-play choices.
 
     Returns:
-        str: The CHOICES items that beat 'hand_choice'.
+        str: The DEFAULT_CHOICES items that beat 'hand_choice'.
     """
     idx = choices.index(hand_choice)
     number_of_beaten_items = (len(choices) - 1) // 2
@@ -215,5 +218,4 @@ def main(choices: tuple[str, ...]):
 
 
 if __name__ == '__main__':
-    CHOICES = ('Rock', 'Paper', 'Scissors')
-    main(CHOICES)
+    main(DEFAULT_CHOICES)
