@@ -49,7 +49,7 @@ The corresponding rules would be:
 * Rock crushes Lizard.
 
 If you make changes to CHOICES, ensure that you run
-[test_validate_choices.py](rsp/tests/test_validate_choices.py).
+[test_default_choices.py](rsp/tests/test_default_choices.py).
 
 ## Getting Started
 
