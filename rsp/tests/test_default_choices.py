@@ -1,9 +1,8 @@
 """Tests to validate DEFAULT_CHOICES tuple."""
-
+import string
 from collections import defaultdict
 
-import rsp.rsp
-from rsp.rsp import DEFAULT_CHOICES
+from rsp.rsp import DEFAULT_CHOICES, QUIT_KEY
 
 
 def test_is_tuple():
@@ -12,9 +11,11 @@ def test_is_tuple():
 
 
 def test_choice_strings():
-    """Each item in DEFAULT_CHOICES must be a string value."""
+    """Each item in `DEFAULT_CHOICES` must be a printable string."""
     for choice in DEFAULT_CHOICES:
-        assert isinstance(choice, str)
+        assert isinstance(choice, str), f"Choice '{choice}' is not a string."
+        message = f"Choice '{choice}' contains non-printable characters."
+        assert all(c in string.printable for c in choice), message
 
 
 def test_length():
@@ -30,7 +31,7 @@ def test_odd_number():
 def test_not_start_with_q():
     """No choice can begin with QUIT_KEY (default: 'Q')."""
     for choice in DEFAULT_CHOICES:
-        assert not choice[0].upper() == rsp.rsp.QUIT_KEY, f"Bad option: {choice}"
+        assert not choice[0].upper() == QUIT_KEY, f"Bad option: {choice}"
 
 
 def test_not_start_with_space():
@@ -42,6 +43,7 @@ def test_not_start_with_space():
 def test_no_empty_names():
     """No choice can be an empty string."""
     for choice in DEFAULT_CHOICES:
+        assert choice != '', "Bad option: Empty string"
         assert choice != '', "Bad option: Empty string"
 
 
