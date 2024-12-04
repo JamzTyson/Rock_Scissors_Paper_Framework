@@ -6,10 +6,7 @@ from rsp.rsp import GameConfig
 
 
 def data():
-    """Test configurations and expected results.
-
-
-    """
+    """Test configurations and expected results."""
     return [
         # Default test.
         (GameConfig(('Rock', 'Paper', 'Scissors')),

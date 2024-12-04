@@ -74,6 +74,7 @@ class GameConfig:
     """
 
     def __init__(self, choices: GameChoices) -> None:
+        """Initialize game configuration object."""
         self._choices: GameChoices = choices
         # Derived properties.
         self._choice_map: dict[str, str] = self._map_initial_to_name()
@@ -125,7 +126,7 @@ class GameConfig:
         return self._user_input_choices
 
     @property
-    def is_beaten_by(self)-> dict[str, list[str]]:
+    def is_beaten_by(self) -> dict[str, list[str]]:
         """A dictionary defines which hands are beaten by each choice."""
         return self._cyclic_hierarchy_map
 
@@ -143,9 +144,9 @@ class GameConfig:
         return ', '.join([f"'{name[0].upper()}'" for name in self.choices])
 
     def _map_cyclic_hierarchy(self) -> dict[str, list[str]]:
-        """Returns dict mapping each choice to a list of choices that it beats."""
+        """Return dict mapping each choice to a list of choices that it beats."""
         number_of_beaten = (len(self._choices) - 1) // 2
-        hierarchy_map = dict()
+        hierarchy_map = {}
         for idx, choice in enumerate(self.choices):
             beaten = [self._choices[idx - j - 1] for j in range(number_of_beaten)]
             hierarchy_map[choice] = beaten
