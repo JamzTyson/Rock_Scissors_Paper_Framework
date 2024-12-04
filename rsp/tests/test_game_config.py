@@ -14,6 +14,7 @@ def data():
         # Default test.
         (GameConfig(('Rock', 'Paper', 'Scissors')),
          {
+             'choices': ('Rock', 'Paper', 'Scissors'),
              'choice_map': {'R': 'Rock', 'P': 'Paper', 'S': 'Scissors'},
              'formatted_choices': '[R]ock, [P]aper, [S]cissors',
              'user_input_choices': "'R', 'P', 'S'"
@@ -22,6 +23,7 @@ def data():
         # Mixed case names.
         (GameConfig(('aaA', 'BBB', 'Ccc', 'dDD')),
          {
+             'choices': ('aaA', 'BBB', 'Ccc', 'dDD'),
              'choice_map': {'A': 'aaA', 'B': 'BBB', 'C': 'Ccc', 'D': 'dDD'},
              'formatted_choices': '[A]aA, [B]BB, [C]cc, [D]DD',
              'user_input_choices': "'A', 'B', 'C', 'D'"
@@ -30,6 +32,7 @@ def data():
         # Empty test_input.
         (GameConfig(tuple()),
          {
+             'choices': tuple(),
              'choice_map': {},
              'formatted_choices': '',
              'user_input_choices': ''
@@ -38,6 +41,7 @@ def data():
         # Single name.
         (GameConfig(('Rock',)),
          {
+             'choices': ('Rock',),
              'choice_map': {'R': 'Rock'},
              'formatted_choices': '[R]ock',
              'user_input_choices': "'R'"
@@ -46,6 +50,7 @@ def data():
         # Numeric characters.
         (GameConfig(('123', '456', '789')),
          {
+             'choices': ('123', '456', '789'),
              'choice_map': {'1': '123', '4': '456', '7': '789'},
              'formatted_choices': '[1]23, [4]56, [7]89',
              'user_input_choices': "'1', '4', '7'"
@@ -54,12 +59,19 @@ def data():
         # Names with spaces.
         (GameConfig(('Hello World', 'a b c')),
          {
+             'choices': ('Hello World', 'a b c'),
              'choice_map': {'H': 'Hello World', 'A': 'a b c'},
              'formatted_choices': '[H]ello World, [A] b c',
              'user_input_choices': "'H', 'A'"
          }
          )
     ]
+
+
+@pytest.mark.parametrize("config, expected", data())
+def test_choices(config, expected):
+    """GameConfig.choices matches initialization argument."""
+    assert config.choices == expected['choices']
 
 
 @pytest.mark.parametrize("config, expected", data())
