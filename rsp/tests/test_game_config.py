@@ -90,3 +90,36 @@ def test_user_input_choices(config, expected):
     The returned string is in the form: "'R', 'P', 'S'"
     """
     assert config.user_input_choices == expected['user_input_choices']
+
+
+@pytest.mark.parametrize(
+    "choices, expected",
+    [
+        # Default choices (Rock, Paper, Scissors)
+        (('Rock', 'Paper', 'Scissors'),
+         {'Paper': ['Rock'], 'Rock': ['Scissors'], 'Scissors': ['Paper']}),
+
+        # Extended choices (Rock, Batman, Paper, Lizard, Scissors)
+        (('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors'),
+         {
+             'Rock': ['Scissors', 'Lizard'],
+             'Batman': ['Rock', 'Scissors'],
+             'Paper': ['Batman', 'Rock'],
+             'Lizard': ['Paper', 'Batman'],
+             'Scissors': ['Lizard', 'Paper']
+         }),
+    ]
+)
+def test_is_beaten_by(choices, expected):
+    """Each choice is beaten by half of the other choices.
+
+    Where the number of choices = n, each choice beats (n - 1) / 2 choices.
+    It can be assumed that n is an odd number (tested elsewhere).
+    For a choice index 'i', the beaten choices are `i-1` to `i-(n-1)/2`.
+
+    Args:
+        choices (GameChoices): The choices used to initialse GameCofig.
+        expected (dict): Mapping of choices to the choices it beats.
+    """
+    config = GameConfig(choices)
+    assert config.is_beaten_by == expected
