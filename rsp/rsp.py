@@ -1,34 +1,39 @@
-"""Classic Rock /  Scissors / Paper game.
+"""Classic Rock / Scissors / Paper Game.
 
 A solo game of 'Rock Paper Scissors' against the computer.
 
+Rules:
 The choices are cyclically arranged such that:
-- Rock beats Scissors
-- Scissors beats Paper
-- Paper beats Rock
+    - Rock beats Scissors
+    - Scissors beats Paper
+    - Paper beats Rock
 
 The game may be extended with more choices that follow the rules:
-    1. Each item beats (n-1)//2 predecessors and is beaten by the
-    other (n-1)//2 items (where 'n' is the number of items).
+    1. Each item beats (n-1)//2 predecessors and is beaten by the other
+       (n-1)//2 items (where 'n' is the number of items).
     2. There must be an odd number of choices.
-    3. No choice may begin with the QUIT_KEY character.
+    3. No choice may begin with the `QUIT_KEY` character.
     4. All choices must begin with a unique letter.
 
-If DEFAULT_CHOICES is modified, it is highly recommended to validate the choices
-by running the pytests.
+If `DEFAULT_CHOICES` is modified, it is highly recommended to validate the
+choices by running the pytests.
 
-Example with more choice options:
+Examples:
+To add more choice options, use a tuple like this::
 
-    ```python
     ('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors')
-    ```
+
 The rules for extended choices would be:
 
-- Rock beats: Scissors and Lizard
-- Batman beats: Rock and Scissors
-- Paper beats: Batman and Rock
-- Lizard beats: Paper and Batman
-- Scissors beats: Lizard and Paper
+    - Rock beats: Scissors and Lizard
+    - Batman beats: Rock and Scissors
+    - Paper beats: Batman and Rock
+    - Lizard beats: Paper and Batman
+    - Scissors beats: Lizard and Paper
+
+Case-Insensitive Input Handling:
+Although lowercase normalization is more common, user input is normalized
+to uppercase to match the displayed menu options. For example: 'R', 'P', 'S'.
 """
 
 from dataclasses import dataclass
