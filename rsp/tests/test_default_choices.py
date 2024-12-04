@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+import rsp.rsp
 from rsp.rsp import DEFAULT_CHOICES
 
 
@@ -27,15 +28,15 @@ def test_odd_number():
 
 
 def test_not_start_with_q():
-    """No choice can begin with 'Q' (reserved for 'Quit')."""
+    """No choice can begin with QUIT_KEY (default: 'Q')."""
     for choice in DEFAULT_CHOICES:
-        assert not choice[0].lower() == 'q', f"Bad option: {choice}"
+        assert not choice[0].upper() == rsp.rsp.QUIT_KEY, f"Bad option: {choice}"
 
 
 def test_not_start_with_space():
     """No choice can begin with a space."""
     for choice in DEFAULT_CHOICES:
-        assert not choice[0].lower() == ' ', f"Bad option: {choice}"
+        assert not choice[0] == ' ', f"Bad option: {choice}"
 
 
 def test_no_empty_names():
@@ -48,6 +49,6 @@ def test_unique_first_letter():
     """Each choice must have a unique first letter (case-insensitive)."""
     first_letters = defaultdict(list)
     for choice in DEFAULT_CHOICES:
-        first_letters[choice[0].lower()].append(choice)
+        first_letters[choice[0].upper()].append(choice)
     duplicates = {k: v for k, v in first_letters.items() if len(v) > 1}
     assert len(duplicates) == 0, f"Duplicate first letters found: {duplicates}"

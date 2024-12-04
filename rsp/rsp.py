@@ -11,7 +11,7 @@ The game may be extended with more choices that follow the rules:
     1. Each item beats (n-1)//2 predecessors and is beaten by the
     other (n-1)//2 items (where 'n' is the number of items).
     2. There must be an odd number of choices.
-    3. No choice may begin with 'Q' (reserved for 'Quit').
+    3. No choice may begin with the QUIT_KEY character.
     4. All choices must begin with a unique letter.
 
 If DEFAULT_CHOICES is modified, it is highly recommended to validate the choices
@@ -38,6 +38,7 @@ import sys
 
 
 DEFAULT_CHOICES = ('Rock', 'Paper', 'Scissors')
+QUIT_KEY = 'Q'  # Reserved for quitting the program.
 
 GameChoices = tuple[str, ...]
 
@@ -117,8 +118,8 @@ class GameConfig:
     def user_input_choices(self) -> str:
         """Return string of input choice options.
 
-        Although 'Q'/'q' is a valid input, it is for quitting rather than
-        a game-play choice, so is not included.
+        Although QUIT_KEY (Default 'Q'/'q') is a valid input, it is reserved
+        for quitting rather than a game-play choice, so is not included.
 
         Returns:
             str: The formatted string in the form "'R', 'P', 'S'".
@@ -171,14 +172,14 @@ def player_choice(config: GameConfig) -> str:
         str: The selected item from DEFAULT_CHOICES.
     """
     while True:
-        choice = input(f"{config.formatted_choices}, or [Q] to quit: ")
+        choice = input(f"{config.formatted_choices}, or [{QUIT_KEY}] to quit: ")
         choice = choice.strip().upper()
 
         chosen = config.choice_map.get(choice)
         if chosen is not None:
             return chosen
 
-        if 'Q' == choice:
+        if QUIT_KEY == choice:
             quit_game()
 
         print(f"Invalid choice. Must be one of: {config.user_input_choices}.")
