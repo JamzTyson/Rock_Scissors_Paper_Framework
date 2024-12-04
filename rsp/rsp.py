@@ -81,12 +81,46 @@ class GameConfig:
 
     def __init__(self, choices: GameChoices) -> None:
         """Initialize game configuration object."""
-        self._choices: GameChoices = choices
+        self._choices: GameChoices = self.validate_choices(choices)
         # Derived properties.
         self._choice_map: dict[str, str] = self._map_initial_to_name()
         self._choices_str: str = self._format_choices()
         self._user_input_choices: str = self._formatted_input_choices()
         self._cyclic_hierarchy_map: dict[str, list[str]] = self._map_cyclic_hierarchy()
+
+    @staticmethod
+    def validate_choices(choices: GameChoices) -> GameChoices:
+        """There must be an odd number of choices >= 3.
+
+        The number of choices must be odd so that each choice beats the
+        same number of choices as it is beaten by. Three choices is the
+        minimum number required to ensure that each choice can win and lose.
+
+        Args:
+            choices (GameChoices): The tuple of hands to choose from.
+
+        Raises:
+            TypeError: The choices are not tuple[str, ...].
+            ValueError: The choices are invalid.
+
+        Returns:
+            GameChoices: The validated choices.
+        """
+        if not isinstance(choices, tuple):
+            raise TypeError("Tuple required. "
+                            f"Received {type(choices)}")
+        for choice in choices:
+            if not isinstance(choice, str):
+                raise TypeError("Each choice must be a string. "
+                                f"Received {type(choice)}")
+
+        if len(choices) < 3:
+            raise ValueError("3 or more choices required. "
+                             f"Received {len(choices)}")
+        if len(choices) % 2 == 0:
+            raise ValueError("Number of choices must be odd.")
+
+        return choices
 
     @property
     def choices(self) -> GameChoices:
