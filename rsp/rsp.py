@@ -35,7 +35,7 @@ Case-Insensitive Input Handling:
 Although lowercase normalization is more common, user input is normalized
 to uppercase to match the displayed menu options. For example: 'R', 'P', 'S'.
 """
-
+from collections import Counter
 from dataclasses import dataclass
 import os
 import random
@@ -95,6 +95,8 @@ class GameConfig:
         The number of choices must be odd so that each choice beats the
         same number of choices as it is beaten by. Three choices is the
         minimum number required to ensure that each choice can win and lose.
+        Each choice must start with a unique letter (case-insensitive) as
+        choices are made by selecting the first letter.
 
         Args:
             choices (GameChoices): The tuple of hands to choose from.
@@ -109,16 +111,31 @@ class GameConfig:
         if not isinstance(choices, tuple):
             raise TypeError("Tuple required. "
                             f"Received {type(choices)}")
-        for choice in choices:
-            if not isinstance(choice, str):
-                raise TypeError("Each choice must be a string. "
-                                f"Received {type(choice)}")
 
         if len(choices) < 3:
             raise ValueError("3 or more choices required. "
                              f"Received {len(choices)}")
+
         if len(choices) % 2 == 0:
             raise ValueError("Number of choices must be odd.")
+
+        # Check for duplicates.
+        if len(choices) != len(set(choices)):
+            count = Counter(choices)
+            duplicates = [choice for choice, num in count.items() if num > 1]
+            raise ValueError(f"Duplicate choice: {duplicates}")
+
+        # Check each choice is a string beginning with a unique letter.
+        # First letter check is case-insensitive as they are represented uppercase.
+        first_letters = set()
+        for choice in choices:
+            if not isinstance(choice, str):
+                raise TypeError("Each choice must be a string. "
+                                f"Received {type(choice)}")
+            if choice[0].upper() in first_letters:
+                raise ValueError("Each choice must begin with a unique letter. "
+                                 f"Duplicate found: '{choice[0]}'.")
+            first_letters.add(choice[0].upper())
 
         return choices
 

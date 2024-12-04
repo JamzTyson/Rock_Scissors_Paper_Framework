@@ -5,7 +5,27 @@ import pytest
 from rsp.rsp import GameConfig
 
 
-def data():
+@pytest.mark.parametrize(
+    "choices, expected_exception",
+    [
+        ((), ValueError),
+        ({'rock', 'scissors', 'paper'}, TypeError),
+        (('rock', 'scissors', 42), TypeError),
+        (('Rock',), ValueError),
+        (('Rock', 'Paper'), ValueError),
+        (('Rock', 'Paper', 'Scissors', 'Lizard'), ValueError),
+        (('rock', 'Rock', 'Paper'), ValueError),
+        (('Rock', 'Paper', 'Scissors', 'Lizard', 'Superman'), ValueError)
+    ]
+)
+def test_invalid_choices(choices, expected_exception):
+    """Check that GameConfig raises an error for invalid choices."""
+    with pytest.raises(expected_exception) as exc:
+        GameConfig(choices)
+    print(f"Raised exception message: {exc.value}")
+
+
+def valid_data():
     """Test configurations and expected results."""
     return [
         # Default test.
@@ -18,30 +38,12 @@ def data():
          }
          ),
         # Mixed case names.
-        (GameConfig(('aaA', 'BBB', 'Ccc', 'dDD')),
+        (GameConfig(('aaA', 'BBB', 'Ccc', 'dDD', 'eee')),
          {
-             'choices': ('aaA', 'BBB', 'Ccc', 'dDD'),
-             'choice_map': {'A': 'aaA', 'B': 'BBB', 'C': 'Ccc', 'D': 'dDD'},
-             'formatted_choices': '[A]aA, [B]BB, [C]cc, [D]DD',
-             'user_input_choices': "'A', 'B', 'C', 'D'"
-         }
-         ),
-        # Empty test_input.
-        (GameConfig(tuple()),
-         {
-             'choices': tuple(),
-             'choice_map': {},
-             'formatted_choices': '',
-             'user_input_choices': ''
-         }
-         ),
-        # Single name.
-        (GameConfig(('Rock',)),
-         {
-             'choices': ('Rock',),
-             'choice_map': {'R': 'Rock'},
-             'formatted_choices': '[R]ock',
-             'user_input_choices': "'R'"
+             'choices': ('aaA', 'BBB', 'Ccc', 'dDD', 'eee'),
+             'choice_map': {'A': 'aaA', 'B': 'BBB', 'C': 'Ccc', 'D': 'dDD', 'E': 'eee'},
+             'formatted_choices': '[A]aA, [B]BB, [C]cc, [D]DD, [E]ee',
+             'user_input_choices': "'A', 'B', 'C', 'D', 'E'"
          }
          ),
         # Numeric characters.
@@ -53,37 +55,37 @@ def data():
              'user_input_choices': "'1', '4', '7'"
          }
          ),
-        # Names with spaces.
-        (GameConfig(('Hello World', 'a b c')),
+        # Names with spaces or special characters.
+        (GameConfig(('Hello World', 'a b c', '&£$*%-_')),
          {
-             'choices': ('Hello World', 'a b c'),
-             'choice_map': {'H': 'Hello World', 'A': 'a b c'},
-             'formatted_choices': '[H]ello World, [A] b c',
-             'user_input_choices': "'H', 'A'"
+             'choices': ('Hello World', 'a b c', '&£$*%-_'),
+             'choice_map': {'H': 'Hello World', 'A': 'a b c', '&': '&£$*%-_'},
+             'formatted_choices': '[H]ello World, [A] b c, [&]£$*%-_',
+             'user_input_choices': "'H', 'A', '&'"
          }
          )
     ]
 
 
-@pytest.mark.parametrize("config, expected", data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_choices(config, expected):
     """GameConfig.choices matches initialization argument."""
     assert config.choices == expected['choices']
 
 
-@pytest.mark.parametrize("config, expected", data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_choice_map(config, expected):
     """Uppercase initial letter of choices mapped to full names."""
     assert config.choice_map == expected['choice_map']
 
 
-@pytest.mark.parametrize("config, expected", data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_formatted_choices(config, expected):
     """Return value matches format '[R]ock, [P]aper, [S]cissors'."""
     assert config.formatted_choices == expected['formatted_choices']
 
 
-@pytest.mark.parametrize("config, expected", data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_user_input_choices(config, expected):
     """Formatted_input_choices() returns formatted first letters.
 
