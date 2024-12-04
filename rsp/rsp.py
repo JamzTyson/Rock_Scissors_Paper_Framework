@@ -150,7 +150,6 @@ class GameConfig:
         for idx, choice in enumerate(self.choices):
             beaten = [self._choices[idx - j - 1] for j in range(number_of_beaten)]
             hierarchy_map[choice] = beaten
-        print(hierarchy_map)
         return hierarchy_map
 
 
