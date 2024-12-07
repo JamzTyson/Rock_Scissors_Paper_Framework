@@ -42,10 +42,10 @@ import random
 import sys
 
 
-DEFAULT_CHOICES = ('Rock', 'Paper', 'Scissors')
+DEFAULT_CHOICE_NAMES = ('Rock', 'Paper', 'Scissors')
 QUIT_KEY = 'Q'  # Reserved for quitting the program.
 
-GameChoices = tuple[str, ...]
+GestureNames = tuple[str, ...]
 
 
 @dataclass
@@ -56,32 +56,15 @@ class Scores:
     robo: int = 0
 
 
-# class Hands:
-#     """Hands objects represent the hand gestures made my players of this game.
-#
-#     Each "hand" object  has a:
-#
-#     - name (such as "Rock")
-#     - menu name ("[R]ock")
-#     - user choice name ("R")
-#     - "is_beaten_by" property (a list of other "hands").
-#     """
-#     def __init__(self, name):
-#         self.name: str
-#         self.menu_name: str
-#         self.user_choice: str
-#         self.is_beaten_by: list[Hands]
-
-
 class GameConfig:
     """Configuration object.
 
     Game choices and derived constants are encapsulated in the GameConfig object.
     """
 
-    def __init__(self, choices: GameChoices) -> None:
+    def __init__(self, choice_names: GestureNames) -> None:
         """Initialize game configuration object."""
-        self._choices: GameChoices = self.validate_choices(choices)
+        self._choices: GestureNames = self.validate_choices(choice_names)
         # Derived properties.
         self._choice_map: dict[str, str] = self._map_initial_to_name()
         self._choices_str: str = self._format_choices()
@@ -89,7 +72,7 @@ class GameConfig:
         self._cyclic_hierarchy_map: dict[str, list[str]] = self._map_cyclic_hierarchy()
 
     @staticmethod
-    def validate_choices(choices: GameChoices) -> GameChoices:
+    def validate_choices(choices: GestureNames) -> GestureNames:
         """There must be an odd number of choices >= 3.
 
         The number of choices must be odd so that each choice beats the
@@ -99,14 +82,14 @@ class GameConfig:
         choices are made by selecting the first letter.
 
         Args:
-            choices (GameChoices): The tuple of hands to choose from.
+            choices (GestureNames): The tuple of hands to choose from.
 
         Raises:
             TypeError: The choices are not tuple[str, ...].
             ValueError: The choices are invalid.
 
         Returns:
-            GameChoices: The validated choices.
+            GestureNames: The validated choices.
         """
         if not isinstance(choices, tuple):
             raise TypeError("Tuple required. "
@@ -140,15 +123,15 @@ class GameConfig:
         return choices
 
     @property
-    def choices(self) -> GameChoices:
+    def choices(self) -> GestureNames:
         """Tuple of game choices.
 
         By default, this returns the strings 'Rock', 'Paper', 'Scissors' from
-        DEFAULT_CHOICES. If you wish to extend the available choices, ensure you
+        DEFAULT_CHOICE_NAMES. If you wish to extend the available choices, ensure you
         validate them by running the `test_default_choices.py` pytest.
 
         Returns:
-            GameChoices: The game choice names.
+            GestureNames: The game choice names.
         """
         return self._choices
 
@@ -241,7 +224,7 @@ def player_choice(config: GameConfig) -> str:
         print(f"Invalid choice. Must be one of: {config.user_input_choices}.")
 
 
-def robo_choice(choices: GameChoices) -> str:
+def robo_choice(choices: GestureNames) -> str:
     """Return computer choice.
 
     Args:
@@ -301,5 +284,5 @@ def main(config: GameConfig):
 
 
 if __name__ == '__main__':
-    default_config = GameConfig(DEFAULT_CHOICES)
+    default_config = GameConfig(DEFAULT_CHOICE_NAMES)
     main(default_config)

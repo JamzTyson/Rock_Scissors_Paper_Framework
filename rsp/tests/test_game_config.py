@@ -120,7 +120,7 @@ def test_is_beaten_by(choices, expected):
     For a choice index 'i', the beaten choices are `i-1` to `i-(n-1)/2`.
 
     Args:
-        choices (GameChoices): The choices used to initialse GameCofig.
+        choices (GestureNames): The choices used to initialse GameCofig.
         expected (dict): Mapping of choices to the choices it beats.
     """
     config = GameConfig(choices)
