@@ -62,10 +62,10 @@ class Scores:
     robo: int = 0
 
 
-class GameConfig:
+class GameOptions:
     """Configuration object.
 
-    Game choices and derived constants are encapsulated in the GameConfig object.
+    Game choices and derived constants are encapsulated in the GameOptions object.
     """
 
     def __init__(self, choice_names: GestureNames) -> None:
@@ -223,11 +223,11 @@ class Hands:
     - "is_beaten_by" property (a list of other "hands").
     """
 
-    def __init__(self, config: GameConfig, hand_choice: str) -> None:
+    def __init__(self, config: GameOptions, hand_choice: str) -> None:
         """Instantiate a hand from hand_choice.
 
         Args:
-            config (GameConfig): Configuration object of choices for current game.
+            config (GameOptions): Configuration object of choices for current game.
             hand_choice (str): The kind of hand required. This may be the hand name
                 (eg "Rock") or the hand choice key (eg "R").
         """
@@ -284,7 +284,7 @@ def clear_screen() -> None:
         print("\n\033[H\033[J", end="")
 
 
-def player_choice(config: GameConfig) -> Hands:
+def player_choice(config: GameOptions) -> Hands:
     """Prompt and return human's hand gesture object.
 
     Returns:
@@ -303,11 +303,11 @@ def player_choice(config: GameConfig) -> Hands:
             print(f"Invalid choice. Must be one of: {config.user_input_choices}.")
 
 
-def robo_choice(config: GameConfig) -> Hands:
+def robo_choice(config: GameOptions) -> Hands:
     """Return a randomly selected hand gesture object.
 
     Args:
-        config (GameConfig): The game configuration.
+        config (GameOptions): The game configuration.
 
     Returns:
         Hands: The randomly selected hand object.
@@ -341,7 +341,7 @@ def quit_game():
     sys.exit(0)
 
 
-def main(config: GameConfig):
+def main(config: GameOptions):
     """Game loop."""
     scores = Scores()
     display_result(scores)
@@ -363,5 +363,5 @@ def main(config: GameConfig):
 
 
 if __name__ == '__main__':
-    default_config = GameConfig(DEFAULT_CHOICE_NAMES)
+    default_config = GameOptions(DEFAULT_CHOICE_NAMES)
     main(default_config)

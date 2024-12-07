@@ -2,7 +2,7 @@
 
 import pytest
 
-from rsp.rsp import GameConfig
+from rsp.rsp import GameOptions
 
 
 @pytest.mark.parametrize(
@@ -19,9 +19,9 @@ from rsp.rsp import GameConfig
     ]
 )
 def test_invalid_choices(choices, expected_exception):
-    """Check that GameConfig raises an error for invalid choices."""
+    """Check that GameOptions raises an error for invalid choices."""
     with pytest.raises(expected_exception) as exc:
-        GameConfig(choices)
+        GameOptions(choices)
     print(f"Raised exception message: {exc.value}")
 
 
@@ -29,7 +29,7 @@ def valid_data():
     """Test configurations and expected results."""
     return [
         # Default test.
-        (GameConfig(('Rock', 'Paper', 'Scissors')),
+        (GameOptions(('Rock', 'Paper', 'Scissors')),
          {
              'choices': ('Rock', 'Paper', 'Scissors'),
              'choice_map': {'R': 'Rock', 'P': 'Paper', 'S': 'Scissors'},
@@ -38,7 +38,7 @@ def valid_data():
          }
          ),
         # Mixed case names.
-        (GameConfig(('aaA', 'BBB', 'Ccc', 'dDD', 'eee')),
+        (GameOptions(('aaA', 'BBB', 'Ccc', 'dDD', 'eee')),
          {
              'choices': ('aaA', 'BBB', 'Ccc', 'dDD', 'eee'),
              'choice_map': {'A': 'aaA', 'B': 'BBB', 'C': 'Ccc', 'D': 'dDD', 'E': 'eee'},
@@ -47,7 +47,7 @@ def valid_data():
          }
          ),
         # Numeric characters.
-        (GameConfig(('123', '456', '789')),
+        (GameOptions(('123', '456', '789')),
          {
              'choices': ('123', '456', '789'),
              'choice_map': {'1': '123', '4': '456', '7': '789'},
@@ -56,7 +56,7 @@ def valid_data():
          }
          ),
         # Names with spaces or special characters.
-        (GameConfig(('Hello World', 'a b c', '&£$*%-_')),
+        (GameOptions(('Hello World', 'a b c', '&£$*%-_')),
          {
              'choices': ('Hello World', 'a b c', '&£$*%-_'),
              'choice_map': {'H': 'Hello World', 'A': 'a b c', '&': '&£$*%-_'},
@@ -69,7 +69,7 @@ def valid_data():
 
 @pytest.mark.parametrize("config, expected", valid_data())
 def test_choices(config, expected):
-    """GameConfig.choices matches initialization argument."""
+    """GameOptions.choices matches initialization argument."""
     assert config.choices == expected['choices']
 
 
@@ -123,5 +123,5 @@ def test_is_beaten_by(choices, expected):
         choices (GestureNames): The choices used to initialse GameCofig.
         expected (dict): Mapping of choices to the choices it beats.
     """
-    config = GameConfig(choices)
+    config = GameOptions(choices)
     assert config.is_beaten_by == expected
