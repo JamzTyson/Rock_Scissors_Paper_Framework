@@ -35,11 +35,17 @@ Case-Insensitive Input Handling:
 Although lowercase normalization is more common, user input is normalized
 to uppercase to match the displayed menu options. For example: 'R', 'P', 'S'.
 """
+import logging
 from collections import Counter
 from dataclasses import dataclass
 import os
 import random
 import sys
+
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler()])
 
 
 DEFAULT_CHOICE_NAMES = ('Rock', 'Paper', 'Scissors')
@@ -73,7 +79,7 @@ class GameConfig:
 
     @staticmethod
     def validate_choices(choices: GestureNames) -> GestureNames:
-        """There must be an odd number of choices >= 3.
+        """There must be an odd number of at least 3 choices.
 
         The number of choices must be odd so that each choice beats the
         same number of choices as it is beaten by. Three choices is the
@@ -127,8 +133,8 @@ class GameConfig:
         """Tuple of game choices.
 
         By default, this returns the strings 'Rock', 'Paper', 'Scissors' from
-        DEFAULT_CHOICE_NAMES. If you wish to extend the available choices, ensure you
-        validate them by running the `test_default_choices.py` pytest.
+        DEFAULT_CHOICE_NAMES. If you wish to modify the available choices, ensure
+        that you validate them by running the `test_default_choices.py` pytest.
 
         Returns:
             GestureNames: The game choice names.
@@ -143,6 +149,16 @@ class GameConfig:
             dict: The map, {initial_letter: full_name, ...}.
         """
         return self._choice_map
+
+    @property
+    def reverse_choice_map(self) -> dict[str, str]:
+        """Return a map of choice names to initial letters.
+
+        Returns:
+            dict: The map {full_name: initial_letter, ...}
+        """
+        assert self._choice_map is not None
+        return {name: key for key, name in self._choice_map.items()}
 
     @property
     def formatted_choices(self) -> str:
@@ -167,7 +183,10 @@ class GameConfig:
 
     @property
     def is_beaten_by(self) -> dict[str, list[str]]:
-        """A dictionary defines which hands are beaten by each choice."""
+        """A dictionary defines which hands are beaten by each choice.
+
+        Dictionary in the form: {winner: list[losers], ...}
+        """
         return self._cyclic_hierarchy_map
 
     def _map_initial_to_name(self) -> dict[str, str]:
@@ -193,6 +212,67 @@ class GameConfig:
         return hierarchy_map
 
 
+class Hands:
+    """Hands objects represent the hand gestures made by players of this game.
+
+    Each "hand" object  has a:
+
+    - name (such as "Rock")
+    - menu name ("[R]ock")
+    - user choice name ("R")
+    - "is_beaten_by" property (a list of other "hands").
+    """
+
+    def __init__(self, config: GameConfig, hand_choice: str) -> None:
+        """Instantiate a hand from hand_choice.
+
+        Args:
+            config (GameConfig): Configuration object of choices for current game.
+            hand_choice (str): The kind of hand required. This may be the hand name
+                (eg "Rock") or the hand choice key (eg "R").
+        """
+        self.config = config
+        self.choice_key = None
+        self.name = None
+        self.is_beaten_by = config.is_beaten_by
+        self.validate_choice(hand_choice)
+
+    def validate_choice(self, choice):
+        """Validate hand_choice and assign self.name and self.choice_key.
+
+        Args:
+            choice (str): The user's  choice. This may be the name or choice_key.
+
+        Raises:
+            ValueError: If the user's choice is not valid.
+        """
+        if choice in self.config.user_input_choices:
+            self.choice_key = choice
+            self.name = self.config.choice_map[choice]
+        elif choice in self.config.choices:
+            self.name = choice
+            self.choice_key = self.config.reverse_choice_map[choice]
+        else:
+            raise ValueError(f"Invalid choice '{choice}'")
+
+    def beats(self, other_hand) -> bool:
+        """Return True if this hand beats other_hand.
+
+        Args:
+            other_hand: The hand to beat.
+
+        Returns:
+            bool: True if this hand wins, else False
+        """
+        return other_hand.name in other_hand.is_beaten_by[self.name]
+
+    def __eq__(self, other):
+        """Hands considered equal if name the same."""
+        if isinstance(other, Hands):
+            return self.name == other.name
+        return False
+
+
 def clear_screen() -> None:
     """Clear Terminal display."""
     if 'TERM' in os.environ:
@@ -204,36 +284,35 @@ def clear_screen() -> None:
         print("\n\033[H\033[J", end="")
 
 
-def player_choice(config: GameConfig) -> str:
-    """Prompt and return human choice from DEFAULT_CHOICES.
+def player_choice(config: GameConfig) -> Hands:
+    """Prompt and return human's hand gesture object.
 
     Returns:
-        str: The selected item from DEFAULT_CHOICES.
+        Hands: The selected Hand() object.
     """
     while True:
         choice = input(f"{config.formatted_choices}, or [{QUIT_KEY}] to quit: ")
         choice = choice.strip().upper()
 
-        chosen = config.choice_map.get(choice)
-        if chosen is not None:
-            return chosen
-
         if QUIT_KEY == choice:
             quit_game()
 
-        print(f"Invalid choice. Must be one of: {config.user_input_choices}.")
+        try:
+            return Hands(config, choice)
+        except ValueError:
+            print(f"Invalid choice. Must be one of: {config.user_input_choices}.")
 
 
-def robo_choice(choices: GestureNames) -> str:
-    """Return computer choice.
+def robo_choice(config: GameConfig) -> Hands:
+    """Return a randomly selected hand gesture object.
 
     Args:
-        choices (tuple): Game-play choices.
+        config (GameConfig): The game configuration.
 
     Returns:
-        str: The randomly selected item from DEFAULT_CHOICES.
+        Hands: The randomly selected hand object.
     """
-    return random.choice(choices)
+    return Hands(config, random.choice(config.choices))
 
 
 def display_result(game_score: Scores,
@@ -244,9 +323,9 @@ def display_result(game_score: Scores,
 
     Args:
         game_score (Scores): The current scores.
-        player (str): The human player's choice.
-        robo (str): The computer player's choice.
-        result_str (str): The result announcement, such as 'WIN' or 'LOSE'.
+        player (str): The human player's hand name.
+        robo (str): The computer player's hand name.
+        result_str (str): The result announcement, of 'WIN', 'LOSE' or 'DRAW'.
     """
     clear_screen()
 
@@ -257,7 +336,7 @@ def display_result(game_score: Scores,
 
 
 def quit_game():
-    """Quit application."""
+    """Exit the game and terminate the program."""
     print("Bye")
     sys.exit(0)
 
@@ -268,19 +347,19 @@ def main(config: GameConfig):
     display_result(scores)
 
     while True:
-        player_hand = player_choice(config)
-        robo_hand = robo_choice(config.choices)
+        player_hand: Hands = player_choice(config)
+        robo_hand: Hands = robo_choice(config)
 
         if player_hand == robo_hand:
-            display_result(scores, player_hand, robo_hand, "DRAW")
+            display_result(scores, player_hand.name, robo_hand.name, "DRAW")
 
-        elif robo_hand in config.is_beaten_by[player_hand]:
+        elif player_hand.beats(robo_hand):
             scores.player += 1
-            display_result(scores, player_hand, robo_hand, "WIN")
+            display_result(scores, player_hand.name, robo_hand.name, "WIN")
 
         else:
             scores.robo += 1
-            display_result(scores, player_hand, robo_hand, "LOSE")
+            display_result(scores, player_hand.name, robo_hand.name, "LOSE")
 
 
 if __name__ == '__main__':
