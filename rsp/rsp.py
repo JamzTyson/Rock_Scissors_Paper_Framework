@@ -61,7 +61,7 @@ class Scores:
     player: int = 0
     robo: int = 0
 
-
+# TODO: Consider making a frozen dataclass.
 class GameOptions:
     """Configuration object.
 
@@ -183,6 +183,7 @@ class GameOptions:
 
     @property
     def is_beaten_by(self) -> dict[str, list[str]]:
+        # TODO: Move into factory class.
         """A dictionary defines which hands are beaten by each choice.
 
         Dictionary in the form: {winner: list[losers], ...}
@@ -203,6 +204,7 @@ class GameOptions:
         return ', '.join([f"'{name[0].upper()}'" for name in self.choices])
 
     def _map_cyclic_hierarchy(self) -> dict[str, list[str]]:
+        # TODO: Move into factory class???
         """Return dict mapping each choice to a list of choices that it beats."""
         number_of_beaten = (len(self._choices) - 1) // 2
         hierarchy_map = {}
@@ -212,8 +214,8 @@ class GameOptions:
         return hierarchy_map
 
 
-class Hands:
-    """Hands objects represent the hand gestures made by players of this game.
+class Hand:
+    """Hand objects represent the hand gestures made by players of this game.
 
     Each "hand" object  has a:
 
@@ -267,8 +269,8 @@ class Hands:
         return other_hand.name in other_hand.is_beaten_by[self.name]
 
     def __eq__(self, other):
-        """Hands considered equal if name the same."""
-        if isinstance(other, Hands):
+        """Hand considered equal if name the same."""
+        if isinstance(other, Hand):
             return self.name == other.name
         return False
 
@@ -284,11 +286,11 @@ def clear_screen() -> None:
         print("\n\033[H\033[J", end="")
 
 
-def player_choice(config: GameOptions) -> Hands:
+def player_choice(config: GameOptions) -> Hand:
     """Prompt and return human's hand gesture object.
 
     Returns:
-        Hands: The selected Hand() object.
+        Hand: The selected Hand() object.
     """
     while True:
         choice = input(f"{config.formatted_choices}, or [{QUIT_KEY}] to quit: ")
@@ -298,21 +300,21 @@ def player_choice(config: GameOptions) -> Hands:
             quit_game()
 
         try:
-            return Hands(config, choice)
+            return Hand(config, choice)
         except ValueError:
             print(f"Invalid choice. Must be one of: {config.user_input_choices}.")
 
 
-def robo_choice(config: GameOptions) -> Hands:
+def robo_choice(config: GameOptions) -> Hand:
     """Return a randomly selected hand gesture object.
 
     Args:
         config (GameOptions): The game configuration.
 
     Returns:
-        Hands: The randomly selected hand object.
+        Hand: The randomly selected hand object.
     """
-    return Hands(config, random.choice(config.choices))
+    return Hand(config, random.choice(config.choices))
 
 
 def display_result(game_score: Scores,
@@ -347,8 +349,8 @@ def main(config: GameOptions):
     display_result(scores)
 
     while True:
-        player_hand: Hands = player_choice(config)
-        robo_hand: Hands = robo_choice(config)
+        player_hand: Hand = player_choice(config)
+        robo_hand: Hand = robo_choice(config)
 
         if player_hand == robo_hand:
             display_result(scores, player_hand.name, robo_hand.name, "DRAW")
