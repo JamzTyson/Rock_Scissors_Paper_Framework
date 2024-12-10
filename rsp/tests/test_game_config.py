@@ -67,25 +67,25 @@ def valid_data():
     ]
 
 
-@pytest.mark.parametrize("_options, expected", valid_data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_choices(config, expected):
     """GameOptions.choices matches initialization argument."""
     assert config.names == expected['choices']
 
 
-@pytest.mark.parametrize("_options, expected", valid_data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_choice_map(config, expected):
     """Uppercase initial letter of choices mapped to full names."""
     assert config.choice_map == expected['choice_map']
 
 
-@pytest.mark.parametrize("_options, expected", valid_data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_formatted_choices(config, expected):
     """Return value matches format '[R]ock, [P]aper, [S]cissors'."""
     assert config.formatted_choices == expected['formatted_choices']
 
 
-@pytest.mark.parametrize("_options, expected", valid_data())
+@pytest.mark.parametrize("config, expected", valid_data())
 def test_user_input_choices(config, expected):
     """Formatted_input_choices() returns formatted first letters.
 
