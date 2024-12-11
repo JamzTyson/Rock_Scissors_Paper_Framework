@@ -91,7 +91,7 @@ def test_user_input_choices(config, expected):
 
     The returned string is in the form: "'R', 'P', 'S'"
     """
-    assert config.user_input_choices == expected['user_input_choices']
+    assert config.formatted_user_input_choices == expected['user_input_choices']
 
 
 @pytest.mark.parametrize(
