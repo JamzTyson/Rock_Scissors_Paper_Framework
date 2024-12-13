@@ -72,10 +72,8 @@ class GameOptions:
         """Initialize game configuration object."""
         self._hand_names: HandNames = self.validate_choices(choice_names)
         # Derived properties.
-        self._menu_options: list[str] = self._menu_options_from_names()
+        self._choice_keys: list[str] = self.generate_choice_keys()
         self._choice_map: dict[str, str] = self._map_initial_to_name()
-        self._choices_str: str = self._format_choices()
-        self._formatted_user_input_choices: str = self._formatted_input_choices()
         self._cyclic_hierarchy_map: dict[str, list[str]] = self._map_cyclic_hierarchy()
 
     @staticmethod
@@ -129,7 +127,7 @@ class GameOptions:
 
         return choices
 
-    def _menu_options_from_names(self) -> list[str]:
+    def generate_choice_keys(self) -> list[str]:
         """Select a unique menu option for each Hand name.
 
         Currently, we use the uppercase first letter of the name, which
@@ -151,9 +149,9 @@ class GameOptions:
         return self._hand_names
 
     @property
-    def menu_choices(self) -> list[str]:
+    def choice_keys(self) -> list[str]:
         """Return list of menu options."""
-        return self._menu_options
+        return self._choice_keys
 
     @property
     def choice_map(self) -> dict[str, str]:
@@ -175,29 +173,7 @@ class GameOptions:
         return {name: key for key, name in self._choice_map.items()}
 
     @property
-    def formatted_choices(self) -> str:
-        """Return formatted string of choices.
-
-        Returns:
-            str: The formatted string in the form '[R]ock, [P]aper, [S]cissors'.
-        """
-        return self._choices_str
-
-    @property
-    def formatted_user_input_choices(self) -> str:
-        """Return string of input choice _options.
-
-        Although QUIT_KEY (Default 'Q'/'q') is a valid input, it is reserved
-        for quitting rather than a game-play choice, so is not included.
-
-        Returns:
-            str: The formatted string in the form "'R', 'P', 'S'".
-        """
-        return self._formatted_user_input_choices
-
-    @property
     def is_beaten_by(self) -> dict[str, list[str]]:
-        # TODO: Move into factory class.
         """A dictionary defines which _hands are beaten by each choice.
 
         Dictionary in the form: {winner: list[losers], ...}
@@ -208,25 +184,7 @@ class GameOptions:
         """Map uppercase initial letter of name in choices, to name."""
         return {name[0].upper(): name for name in self.names}
 
-    def _format_choices(self) -> str:
-        """Return formatted string of choices.
-
-        Formatted string in the form:
-            '[R]ock, [S]cissors, [P]aper'
-        """
-        return ', '.join([f"[{choice[0].upper()}]{choice[1:]}"
-                          for choice in self.names])
-
-    def _formatted_input_choices(self) -> str:
-        """Return string of input choice _options.
-
-        Formatted string in the form:
-            "'R', 'S', 'P'"
-        """
-        return ', '.join([f"'{option}'" for option in self._menu_options])
-
     def _map_cyclic_hierarchy(self) -> dict[str, list[str]]:
-        # TODO: Move into factory class???
         """Return dict mapping each choice to a list of choices that it beats."""
         number_of_beaten = (len(self._hand_names) - 1) // 2
         hierarchy_map = {}
@@ -234,6 +192,78 @@ class GameOptions:
             beaten = [self._hand_names[idx - j - 1] for j in range(number_of_beaten)]
             hierarchy_map[choice] = beaten
         return hierarchy_map
+
+
+class UI:
+    """Manages user interface ui.
+
+    This version of Rock Scissors Paper implements a simple text interface in
+    a Terminal window.
+    """
+
+    def __init__(self, config: GameOptions) -> None:
+        """Initialise user interface.
+
+        Args:
+            config (GameOptions): Game choices and derived constants.
+        """
+        self.names = config.names
+        self._menu_options: list[str] = config.choice_keys
+
+    def get_user_input(self) -> str:
+        """Prompt user for input."""
+        prompt = (f"{self._format_choices()}, "
+                  f"or [{QUIT_KEY}] to quit: ")
+        return input(prompt).strip().upper()
+
+    def _format_choices(self) -> str:
+        """Return formatted string of choices.
+
+        Formatted string in the form:
+            '[R]ock, [S]cissors, [P]aper'
+        """
+        return ', '.join([f"[{name[0].upper()}]{name[1:]}"
+                          for name in self.names])
+
+    def invalid_choice(self):
+        """Display invalid choice message."""
+        choice_str = ', '.join([f"'{option}'" for option in self._menu_options])
+        print(f"Invalid choice. Must be one of: {choice_str}.")
+
+    def display_result(self, game_score: Scores,
+                       player: str = '',
+                       robo: str = '',
+                       result_str: str = '') -> None:
+        """Display game result.
+
+        Args:
+            game_score (Scores): The current scores.
+            player (str): The human player's hand name.
+            robo (str): The computer player's hand name.
+            result_str (str): The result announcement, of 'WIN', 'LOSE' or 'DRAW'.
+        """
+        self.clear_screen()
+
+        if player != '':
+            print(f"You = {player} : "
+                  f"Computer = {robo} : YOU {result_str}")
+        print(f"Player: {game_score.player} | Computer: {game_score.robo}\n")
+
+    @staticmethod
+    def exit_message() -> None:
+        """Display exit message."""
+        print("Bye")
+
+    @staticmethod
+    def clear_screen() -> None:
+        """Clear Terminal ui."""
+        if 'TERM' in os.environ:
+            # Should work cross-platform for most terminals.
+            os.system('cls' if os.name == 'nt' else 'clear')
+        else:
+            print('\n')  # In Thonny we settle for a new line.
+            # Escape codes may work for other Terminal emulators.
+            print("\n\033[H\033[J", end="")
 
 
 class Hand:
@@ -272,7 +302,7 @@ class Hand:
         Raises:
             ValueError: If the user's choice is not valid.
         """
-        if choice in self._options.menu_choices:
+        if choice in self._options.choice_keys:
             self.choice_key = choice
             self.name = self._options.choice_map[choice]
         elif choice in self._options.names:
@@ -347,35 +377,22 @@ class HandsFactory:
                 for idx, name in enumerate(beaten_by_names)]
 
 
-def clear_screen() -> None:
-    """Clear Terminal display."""
-    if 'TERM' in os.environ:
-        # Should work cross-platform for most terminals.
-        os.system('cls' if os.name == 'nt' else 'clear')
-    else:
-        print('\n')  # In Thonny we settle for a new line.
-        # Escape codes may work for other Terminal emulators.
-        print("\n\033[H\033[J", end="")
-
-
-def player_choice(config: GameOptions) -> Hand:
+def player_choice(config: GameOptions, ui: UI) -> Hand:
     """Prompt and return human's hand gesture object.
 
     Returns:
         Hand: The selected Hand() object.
     """
     while True:
-        choice = input(f"{config.formatted_choices}, or [{QUIT_KEY}] to quit: ")
-        choice = choice.strip().upper()
+        choice = ui.get_user_input()
 
         if QUIT_KEY == choice:
-            quit_game()
+            quit_game(ui)
 
         try:
             return Hand(config, choice)
         except ValueError:
-            print("Invalid choice. Must be one of: "
-                  f"{config.formatted_user_input_choices}.")
+            ui.invalid_choice()
 
 
 def robo_choice(config: GameOptions) -> Hand:
@@ -390,36 +407,16 @@ def robo_choice(config: GameOptions) -> Hand:
     return Hand(config, random.choice(config.names))
 
 
-def display_result(game_score: Scores,
-                   player: str = '',
-                   robo: str = '',
-                   result_str: str = '') -> None:
-    """Display game result.
-
-    Args:
-        game_score (Scores): The current scores.
-        player (str): The human player's hand name.
-        robo (str): The computer player's hand name.
-        result_str (str): The result announcement, of 'WIN', 'LOSE' or 'DRAW'.
-    """
-    clear_screen()
-
-    if player != '':
-        print(f"You = {player} : "
-              f"Computer = {robo} : YOU {result_str}")
-    print(f"Player: {game_score.player} | Computer: {game_score.robo}\n")
-
-
-def quit_game():
+def quit_game(ui: UI):
     """Exit the game and terminate the program."""
-    print("Bye")
+    ui.exit_message()
     sys.exit(0)
 
 
-def main(config: GameOptions):
+def main(config: GameOptions, ui: UI):
     """Game loop."""
     scores = Scores()
-    display_result(scores)
+    ui.display_result(scores)
     _factory = HandsFactory(config)
 
     # Not yet used.
@@ -427,21 +424,22 @@ def main(config: GameOptions):
     logging.debug(f"Hands: {hands}")
 
     while True:
-        player_hand: Hand = player_choice(config)
+        player_hand: Hand = player_choice(config, ui)
         robo_hand: Hand = robo_choice(config)
 
         if player_hand == robo_hand:
-            display_result(scores, player_hand.name, robo_hand.name, "DRAW")
+            ui.display_result(scores, player_hand.name, robo_hand.name, "DRAW")
 
         elif player_hand.beats(robo_hand):
             scores.player += 1
-            display_result(scores, player_hand.name, robo_hand.name, "WIN")
+            ui.display_result(scores, player_hand.name, robo_hand.name, "WIN")
 
         else:
             scores.robo += 1
-            display_result(scores, player_hand.name, robo_hand.name, "LOSE")
+            ui.display_result(scores, player_hand.name, robo_hand.name, "LOSE")
 
 
 if __name__ == '__main__':
     default_config = GameOptions(DEFAULT_CHOICE_NAMES)
-    main(default_config)
+    display_manager = UI(default_config)
+    main(default_config, display_manager)
