@@ -15,9 +15,6 @@ The game may be extended with more choices that follow the rules:
     3. No choice may begin with the `QUIT_KEY` character.
     4. All choices must begin with a unique letter.
 
-If `DEFAULT_CHOICES` is modified, it is highly recommended to validate the
-choices by running the pytests.
-
 Examples:
 To add more choice _options, use a tuple like this::
 
@@ -31,17 +28,19 @@ The rules for extended choices would be:
     - Lizard beats: Paper and Batman
     - Scissors beats: Lizard and Paper
 
-Case-Insensitive Input Handling:
-Although lowercase normalization is more common, user input is normalized
-to uppercase to match the displayed menu _options. For example: 'R', 'P', 'S'.
+Notes:
+    Case-Insensitive Input Handling:
+    Although lowercase normalization is more common, user input is normalized
+    to uppercase to match the displayed menu _options. For example: 'R', 'P', 'S'.
 """
+
 import logging
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 import random
 import sys
-
+from enum import auto, Enum
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(levelname)s - %(message)s',
@@ -52,6 +51,14 @@ DEFAULT_CHOICE_NAMES = ('Rock', 'Paper', 'Scissors')
 QUIT_KEY = 'Q'  # Reserved for quitting the program.
 
 HandNames = tuple[str, ...]
+
+
+class HandResult(Enum):
+    """Possible results for each hand."""
+
+    WIN = auto()
+    LOSE = auto()
+    DRAW = auto()
 
 
 @dataclass
@@ -65,19 +72,34 @@ class Scores:
 class GameOptions:
     """Configuration object.
 
-    Game choices and derived constants are encapsulated in the GameOptions object.
+    Game choices define the Hand names and their menu keys.
     """
 
     def __init__(self, choice_names: HandNames) -> None:
         """Initialize game configuration object."""
-        self._hand_names: HandNames = self.validate_choices(choice_names)
-        # Derived properties.
-        self._choice_keys: list[str] = self.generate_choice_keys()
-        self._choice_map: dict[str, str] = self._map_initial_to_name()
-        self._cyclic_hierarchy_map: dict[str, list[str]] = self._map_cyclic_hierarchy()
+        self._hand_names: HandNames = self._validate_choices(choice_names)
+        self._choice_keys: list[str] = self._generate_choice_keys()
+
+    @property
+    def names(self) -> HandNames:
+        """Tuple of game choices.
+
+        By default, this returns the strings 'Rock', 'Paper', 'Scissors' from
+        DEFAULT_CHOICE_NAMES. If you wish to modify the available choices, ensure
+        that you validate them.
+
+        Returns:
+            HandNames: The game choice names.
+        """
+        return self._hand_names
+
+    @property
+    def choice_keys(self) -> list[str]:
+        """Return list of menu options."""
+        return self._choice_keys
 
     @staticmethod
-    def validate_choices(choices: HandNames) -> HandNames:
+    def _validate_choices(choices: HandNames) -> HandNames:
         """There must be an odd number of at least 3 choices.
 
         The number of choices must be odd so that each choice beats the
@@ -114,6 +136,7 @@ class GameOptions:
             raise ValueError(f"Duplicate choice: {duplicates}")
 
         # Check each choice is a string beginning with a unique letter.
+        # Required as this version uses the first letter as the menu option.
         # First letter check is case-insensitive as they are represented uppercase.
         first_letters = set()
         for choice in choices:
@@ -127,85 +150,26 @@ class GameOptions:
 
         return choices
 
-    def generate_choice_keys(self) -> list[str]:
-        """Select a unique menu option for each Hand name.
+    def _generate_choice_keys(self) -> list[str]:
+        """Generate a unique menu option for each Hand name.
 
         Currently, we use the uppercase first letter of the name, which
         must be unique.
         """
         return [choice[0].upper() for choice in self.names]
 
-    @property
-    def names(self) -> HandNames:
-        """Tuple of game choices.
-
-        By default, this returns the strings 'Rock', 'Paper', 'Scissors' from
-        DEFAULT_CHOICE_NAMES. If you wish to modify the available choices, ensure
-        that you validate them by running the `test_default_choices.py` pytest.
-
-        Returns:
-            HandNames: The game choice names.
-        """
-        return self._hand_names
-
-    @property
-    def choice_keys(self) -> list[str]:
-        """Return list of menu options."""
-        return self._choice_keys
-
-    @property
-    def choice_map(self) -> dict[str, str]:
-        """Return a dict of initial letters to choice names.
-
-        Returns:
-            dict: The map, {initial_letter: full_name, ...}.
-        """
-        return self._choice_map
-
-    @property
-    def reverse_choice_map(self) -> dict[str, str]:
-        """Return a map of choice names to initial letters.
-
-        Returns:
-            dict: The map {full_name: initial_letter, ...}
-        """
-        assert self._choice_map is not None
-        return {name: key for key, name in self._choice_map.items()}
-
-    @property
-    def is_beaten_by(self) -> dict[str, list[str]]:
-        """A dictionary defines which _hands are beaten by each choice.
-
-        Dictionary in the form: {winner: list[losers], ...}
-        """
-        return self._cyclic_hierarchy_map
-
-    def _map_initial_to_name(self) -> dict[str, str]:
-        """Map uppercase initial letter of name in choices, to name."""
-        return {name[0].upper(): name for name in self.names}
-
-    def _map_cyclic_hierarchy(self) -> dict[str, list[str]]:
-        """Return dict mapping each choice to a list of choices that it beats."""
-        number_of_beaten = (len(self._hand_names) - 1) // 2
-        hierarchy_map = {}
-        for idx, choice in enumerate(self.names):
-            beaten = [self._hand_names[idx - j - 1] for j in range(number_of_beaten)]
-            hierarchy_map[choice] = beaten
-        return hierarchy_map
-
 
 class UI:
     """Manages user interface ui.
 
-    This version of Rock Scissors Paper implements a simple text interface in
-    a Terminal window.
+    A simple text interface in a Terminal window.
     """
 
     def __init__(self, config: GameOptions) -> None:
         """Initialise user interface.
 
         Args:
-            config (GameOptions): Game choices and derived constants.
+            config (GameOptions): Contains Hand names and menu key properties.
         """
         self.names = config.names
         self._menu_options: list[str] = config.choice_keys
@@ -233,20 +197,21 @@ class UI:
     def display_result(self, game_score: Scores,
                        player: str = '',
                        robo: str = '',
-                       result_str: str = '') -> None:
+                       result: HandResult = None) -> None:
         """Display game result.
 
         Args:
             game_score (Scores): The current scores.
-            player (str): The human player's hand name.
-            robo (str): The computer player's hand name.
-            result_str (str): The result announcement, of 'WIN', 'LOSE' or 'DRAW'.
+            player (str): The human player's hand name. Default = ''
+            robo (str): The computer player's hand name. Default = ''
+            result (HandResult): The Enum value 'WIN', 'LOSE' or 'DRAW'.
+                Default = None
         """
         self.clear_screen()
 
-        if player != '':
+        if result is not None:
             print(f"You = {player} : "
-                  f"Computer = {robo} : YOU {result_str}")
+                  f"Computer = {robo} : YOU {result.name}")
         print(f"Player: {game_score.player} | Computer: {game_score.robo}\n")
 
     @staticmethod
@@ -266,83 +231,33 @@ class UI:
             print("\n\033[H\033[J", end="")
 
 
+@dataclass
 class Hand:
     """Hand objects represent the hand gestures made by players of this game.
 
-    Each "hand" object  has a:
-
-    - name (such as "Rock")
-    - menu name ("[R]ock")
-    - user choice name ("R")
-    - "is_beaten_by" property (a list of other "_hands").
+    Attributes:
+        name (str): Example "Rock"
+        choice_key (str): Example "R"
+        beats_hands (list): A list of other Hand instances that this Hand beats.
     """
 
-    def __init__(self, options: GameOptions, hand_choice: str) -> None:
-        """Instantiate a hand from hand_choice.
-
-        Args:
-            options (GameOptions): Configuration object of choices for current game.
-            hand_choice (str): The kind of hand required. This may be the hand name
-                (eg "Rock") or the hand choice key (eg "R").
-        """
-        self._options = options
-        self.choice_key = None
-        self.name = None
-        self.is_beaten_by = options.is_beaten_by
-        self.validate_choice(hand_choice)
-
-        self.beaten_by = None
-
-    def validate_choice(self, choice):
-        """Validate hand_choice and assign self.name and self.choice_key.
-
-        Args:
-            choice (str): The user's  choice. This may be the name or choice_key.
-
-        Raises:
-            ValueError: If the user's choice is not valid.
-        """
-        if choice in self._options.choice_keys:
-            self.choice_key = choice
-            self.name = self._options.choice_map[choice]
-        elif choice in self._options.names:
-            self.name = choice
-            self.choice_key = self._options.reverse_choice_map[choice]
-        else:
-            raise ValueError(f"Invalid choice '{choice}'")
-
-    def beats(self, other_hand) -> bool:
-        """Return True if this hand beats other_hand.
-
-        Args:
-            other_hand: The hand to beat.
-
-        Returns:
-            bool: True if this hand wins, else False
-        """
-        return other_hand.name in other_hand.is_beaten_by[self.name]
-
-    def __eq__(self, other):
-        """Hand considered equal if name the same."""
-        if isinstance(other, Hand):
-            return self.name == other.name
-        return False
+    name: str
+    choice_key: str
+    beats_hands: list['Hand'] = field(default_factory=list)
 
 
-class HandsFactory:
-    """Factory for creating and managing Hand objects."""
+class HandManager:
+    """Creates and manages Hand objects."""
 
     def __init__(self, options: GameOptions):
-        """Initialize the factory with game _options."""
-        self._options: GameOptions = options
-        self._names: tuple[str, ...] = options.names
-        self._beaten_by: dict[str, list[str]] = self._options.is_beaten_by
+        """Initialize with game _options."""
+        self._options = options
 
         # Create list of available Hand instances.
-        self._hands = [Hand(options, name) for name in options.names]
-        self._hands_by_name = {hand.name: hand for hand in self._hands}
+        self._hands = self._generate_hands()
+        self._hands_by_key = self._map_key_to_hand()
 
-        self._update_hand_properties()
+        self._set_beats_properties()
 
     @property
     def hands(self) -> list[Hand]:
@@ -352,8 +267,8 @@ class HandsFactory:
         """
         return self._hands
 
-    def get_hand_by_name(self, name: str) -> Hand:
-        """Return the Hand that has supplied name.
+    def get_hand_by_key(self, key: str) -> Hand:
+        """Return the Hand that has supplied key.
 
         Used by: player_choice().
 
@@ -363,22 +278,46 @@ class HandsFactory:
         Returns:
             Hand: The requested Hand.
         """
-        return self._hands_by_name[name]
+        return self._hands_by_key[key]
 
-    def _update_hand_properties(self) -> None:
-        """Populate the properties of each Hand."""
+    def _generate_hands(self) -> list[Hand]:
+        """Generate a list of Hands.
+
+        One Hand for each GameOptions.name.
+        Each Hand is initialised with a name and choice-key.
+        """
+        names = self._options.names
+        keys = self._options.choice_keys
+        return [Hand(name=name, choice_key=key) for name, key in zip(names, keys)]
+
+    def _map_key_to_hand(self) -> dict[str, Hand]:
+        """Return dict mapping choice keys to Hands."""
+        return {hand.choice_key: hand for hand in self._hands}
+
+    def _set_beats_properties(self) -> None:
+        """Populate the 'beats_hands' properties of each Hand."""
+        hand_beats_map = self._map_cyclic_hierarchy()
         for hand in self._hands:
-            hand.is_beaten_by = self._get_beaten_by_list(hand)
+            hand.beats_hands = hand_beats_map[hand.name]
 
-    def _get_beaten_by_list(self, hand: Hand) -> list[Hand]:
-        """Set the Hand's 'is_beaten_by' property."""
-        beaten_by_names = self._beaten_by[hand.name]
-        return [self.get_hand_by_name(name)
-                for idx, name in enumerate(beaten_by_names)]
+    def _map_cyclic_hierarchy(self) -> dict[str, list[Hand]]:
+        """Return dict mapping each hand name to a list of hands that it beats."""
+        number_of_beaten = (len(self._options.names) - 1) // 2
+        hierarchy_map = {}
+        for idx, choice in enumerate(self._options.names):
+            beaten = [self._hands[idx - j - 1] for
+                      j in range(number_of_beaten)]
+            hierarchy_map[choice] = beaten
+
+        return hierarchy_map
 
 
-def player_choice(config: GameOptions, ui: UI) -> Hand:
+def player_choice(hm: HandManager, ui: UI) -> Hand:
     """Prompt and return human's hand gesture object.
+
+    Args:
+        hm (HandManager): The HandManager object.
+        ui (UI): The user interface object.
 
     Returns:
         Hand: The selected Hand() object.
@@ -386,25 +325,25 @@ def player_choice(config: GameOptions, ui: UI) -> Hand:
     while True:
         choice = ui.get_user_input()
 
-        if QUIT_KEY == choice:
+        if choice == QUIT_KEY:
             quit_game(ui)
 
         try:
-            return Hand(config, choice)
-        except ValueError:
+            return hm.get_hand_by_key(choice)
+        except KeyError:
             ui.invalid_choice()
 
 
-def robo_choice(config: GameOptions) -> Hand:
+def robo_choice(hm: HandManager) -> Hand:
     """Return a randomly selected hand gesture object.
 
     Args:
-        config (GameOptions): The game configuration.
+        hm (HandManager): The HandManager object.
 
     Returns:
         Hand: The randomly selected hand object.
     """
-    return Hand(config, random.choice(config.names))
+    return random.choice(hm.hands)
 
 
 def quit_game(ui: UI):
@@ -417,26 +356,24 @@ def main(config: GameOptions, ui: UI):
     """Game loop."""
     scores = Scores()
     ui.display_result(scores)
-    _factory = HandsFactory(config)
-
-    # Not yet used.
-    hands = _factory.hands
-    logging.debug(f"Hands: {hands}")
+    # Generate hands available in this game.
+    hand_manager = HandManager(config)
 
     while True:
-        player_hand: Hand = player_choice(config, ui)
-        robo_hand: Hand = robo_choice(config)
+        player_hand: Hand = player_choice(hand_manager, ui)
+        robo_hand: Hand = robo_choice(hand_manager)
 
         if player_hand == robo_hand:
-            ui.display_result(scores, player_hand.name, robo_hand.name, "DRAW")
-
-        elif player_hand.beats(robo_hand):
+            ui.display_result(scores, player_hand.name,
+                              robo_hand.name, HandResult.DRAW)
+        elif robo_hand in player_hand.beats_hands:
             scores.player += 1
-            ui.display_result(scores, player_hand.name, robo_hand.name, "WIN")
-
+            ui.display_result(scores, player_hand.name,
+                              robo_hand.name, HandResult.WIN)
         else:
             scores.robo += 1
-            ui.display_result(scores, player_hand.name, robo_hand.name, "LOSE")
+            ui.display_result(scores, player_hand.name,
+                              robo_hand.name, HandResult.LOSE)
 
 
 if __name__ == '__main__':
