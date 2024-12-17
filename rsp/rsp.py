@@ -36,11 +36,13 @@ Notes:
 
 import logging
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 import os
 import random
 import sys
 from enum import auto, Enum
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(levelname)s - %(message)s',
@@ -76,8 +78,12 @@ class GameOptions:
     """
 
     def __init__(self, choice_names: HandNames) -> None:
-        """Initialize game configuration object."""
-        self._hand_names: HandNames = self._validate_choices(choice_names)
+        """Initialize game configuration object.
+
+        choice names are stripped of leading / trailing whitespace.
+        """
+        choices =  [choice.strip() for choice in choice_names]
+        self._hand_names: HandNames = self._validate_choices(choices)
         self._choice_keys: list[str] = self._generate_choice_keys()
 
     @property
@@ -99,7 +105,7 @@ class GameOptions:
         return self._choice_keys
 
     @staticmethod
-    def _validate_choices(choices: HandNames) -> HandNames:
+    def _validate_choices(choices: list[str]) -> HandNames:
         """There must be an odd number of at least 3 choices.
 
         The number of choices must be odd so that each choice beats the
@@ -109,16 +115,16 @@ class GameOptions:
         choices are made by selecting the first letter.
 
         Args:
-            choices (HandNames): The tuple of _hands to choose from.
+            choices (HandNames): The hand names to choose from.
 
         Raises:
-            TypeError: The choices are not tuple[str, ...].
+            TypeError: The choices are not iterable[str, ...].
             ValueError: The choices are invalid.
 
         Returns:
             HandNames: The validated choices.
         """
-        if not isinstance(choices, tuple):
+        if not isinstance(choices, Iterable):
             raise TypeError("Tuple required. "
                             f"Received {type(choices)}")
 
@@ -148,7 +154,7 @@ class GameOptions:
                                  f"Duplicate found: '{choice[0]}'.")
             first_letters.add(choice[0].upper())
 
-        return choices
+        return tuple(choices)
 
     def _generate_choice_keys(self) -> list[str]:
         """Generate a unique menu option for each Hand name.
