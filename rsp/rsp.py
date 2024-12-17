@@ -47,8 +47,8 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.StreamHandler()])
 
 
-DEFAULT_CHOICE_NAMES = ('Rock', 'Paper', 'Scissors')
-QUIT_KEY = 'Q'  # Reserved for quitting the program.
+DEFAULT_CHOICE_NAMES: tuple[str, ...] = ('Rock', 'Paper', 'Scissors')
+QUIT_KEY: str = 'Q'  # Reserved for quitting the program.
 
 HandNames = tuple[str, ...]
 
