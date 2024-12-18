@@ -36,13 +36,12 @@ Notes:
 
 import logging
 from collections import Counter
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 import os
 import random
 import sys
 from enum import auto, Enum
-
+from typing import Optional
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(levelname)s - %(message)s',
@@ -80,10 +79,10 @@ class GameOptions:
     def __init__(self, choice_names: HandNames) -> None:
         """Initialize game configuration object.
 
-        choice names are stripped of leading / trailing whitespace.
+        choice names will be stripped of leading / trailing whitespace
+        during validation.
         """
-        choices =  [choice.strip() for choice in choice_names]
-        self._hand_names: HandNames = self._validate_choices(choices)
+        self._hand_names: HandNames = self._validate_choices(choice_names)
         self._choice_keys: list[str] = self._generate_choice_keys()
 
     @property
@@ -105,7 +104,7 @@ class GameOptions:
         return self._choice_keys
 
     @staticmethod
-    def _validate_choices(choices: list[str]) -> HandNames:
+    def _validate_choices(choices: HandNames) -> HandNames:
         """There must be an odd number of at least 3 choices.
 
         The number of choices must be odd so that each choice beats the
@@ -124,7 +123,7 @@ class GameOptions:
         Returns:
             HandNames: The validated choices.
         """
-        if not isinstance(choices, Iterable):
+        if not isinstance(choices, tuple):
             raise TypeError("Tuple required. "
                             f"Received {type(choices)}")
 
@@ -135,26 +134,35 @@ class GameOptions:
         if len(choices) % 2 == 0:
             raise ValueError("Number of choices must be odd.")
 
-        # Check for duplicates.
-        if len(choices) != len(set(choices)):
-            count = Counter(choices)
-            duplicates = [choice for choice, num in count.items() if num > 1]
-            raise ValueError(f"Duplicate choice: {duplicates}")
+        # Strip leading / trailing whitespace
+        try:
+            choices = tuple(choice.strip() for choice in choices)
+        except AttributeError as exc:
+            raise TypeError(f"Invalid choice name {exc}")
 
-        # Check each choice is a string beginning with a unique letter.
-        # Required as this version uses the first letter as the menu option.
-        # First letter check is case-insensitive as they are represented uppercase.
-        first_letters = set()
+        # Check choice (str) items:
+        found_choices: set[str] = set()
+        found_keys: set[str] = set()
         for choice in choices:
+            # choice is a string.
             if not isinstance(choice, str):
                 raise TypeError("Each choice must be a string. "
                                 f"Received {type(choice)}")
-            if choice[0].upper() in first_letters:
+            # string not empty
+            if choice == '':
+                raise ValueError("Choice name cannot be an empty string.")
+            # No duplicates
+            if choice in found_choices:
+                raise ValueError(f"Duplicate choice: {choice}")
+            found_choices.add(choice)
+            # Begins with a unique letter (case-insensitive).
+            # Required as this version uses the first letter as the menu option.
+            if choice[0].upper() in found_keys:
                 raise ValueError("Each choice must begin with a unique letter. "
                                  f"Duplicate found: '{choice[0]}'.")
-            first_letters.add(choice[0].upper())
+            found_keys.add(choice[0].upper())
 
-        return tuple(choices)
+        return choices
 
     def _generate_choice_keys(self) -> list[str]:
         """Generate a unique menu option for each Hand name.
@@ -203,7 +211,7 @@ class UI:
     def display_result(self, game_score: Scores,
                        player: str = '',
                        robo: str = '',
-                       result: HandResult = None) -> None:
+                       result: Optional[HandResult] = None) -> None:
         """Display game result.
 
         Args:
