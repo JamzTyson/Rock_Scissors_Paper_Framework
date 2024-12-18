@@ -202,7 +202,7 @@ class UI:
         return ', '.join([f"[{name[0].upper()}]{name[1:]}"
                           for name in self.names])
 
-    def invalid_choice(self):
+    def invalid_choice_message(self):
         """Display invalid choice message."""
         choice_str = ', '.join([f"'{option}'" for option in self._menu_options])
         print(f"Invalid choice. Must be one of: {choice_str}.")
@@ -344,7 +344,7 @@ def player_choice(hm: HandManager, ui: UI) -> Hand:
         try:
             return hm.get_hand_by_key(choice)
         except KeyError:
-            ui.invalid_choice()
+            ui.invalid_choice_message()
 
 
 def robo_choice(hm: HandManager) -> Hand:
