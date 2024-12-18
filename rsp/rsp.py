@@ -137,7 +137,7 @@ class GameOptions:
         try:
             choices = tuple(choice.strip() for choice in choices)
         except AttributeError as exc:
-            raise TypeError(f"Invalid choice name {exc}")
+            raise TypeError(f"Invalid choice name: {exc}") from exc
 
         # Check choice (str) items:
         found_choices: set[str] = set()
