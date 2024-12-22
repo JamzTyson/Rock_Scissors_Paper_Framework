@@ -365,10 +365,15 @@ def quit_game(ui: UI):
     sys.exit(0)
 
 
-def main(config: GameOptions, ui: UI):
+def main() -> None:
     """Game loop."""
+    # Instantiate instances of Scores, GameOptions and UI.
     scores = Scores()
+    config = GameOptions(DEFAULT_CHOICE_NAMES)
+    ui = UI(config)
+
     ui.display_result(scores)
+
     # Generate hands available in this game.
     hand_manager = HandManager(config)
 
@@ -390,6 +395,4 @@ def main(config: GameOptions, ui: UI):
 
 
 if __name__ == '__main__':
-    default_config = GameOptions(DEFAULT_CHOICE_NAMES)
-    display_manager = UI(default_config)
-    main(default_config, display_manager)
+    main()
