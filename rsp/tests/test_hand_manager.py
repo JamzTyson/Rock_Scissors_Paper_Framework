@@ -3,8 +3,8 @@ from typing import Any
 
 import pytest
 
-from rsp.rsp import GameOptions, Hand, HandManager
-from rsp.tests.config_data import valid_data
+from ..rsp import GameOptions, Hand, HandManager
+from ..tests.config_data import valid_data
 
 
 @pytest.fixture

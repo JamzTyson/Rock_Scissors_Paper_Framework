@@ -11,8 +11,8 @@ from unittest.mock import patch
 
 import pytest
 
-from rsp.rsp import GameOptions, UI
-from rsp.tests.config_data import valid_data
+from ..rsp import GameOptions, UI
+from ..tests.config_data import valid_data
 
 
 @pytest.fixture

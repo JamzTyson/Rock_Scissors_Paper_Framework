@@ -2,7 +2,7 @@
 
 
 def valid_data():
-    """Valid test configurations and expected results.
+    """Validate test configurations and expected results.
 
     For each HandNames tuple, we have a dict of expected valuesL
         - 'valid_HandNames' -> (tuple[str]): The tuple of GameOption names.
@@ -13,7 +13,7 @@ def valid_data():
         (
             ("Rock", "Paper", "Scissors"),
             {
-                "valid_HandNames": ("Rock", "Paper","Scissors"),
+                "valid_HandNames": ("Rock", "Paper", "Scissors"),
                 "choice_keys": ["R", "P", "S"],
             },
         ),

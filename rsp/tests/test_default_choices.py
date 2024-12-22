@@ -2,7 +2,7 @@
 import string
 from collections import defaultdict
 
-from rsp.rsp import DEFAULT_CHOICE_NAMES, QUIT_KEY
+from ..rsp import DEFAULT_CHOICE_NAMES, QUIT_KEY
 
 
 def test_is_tuple():

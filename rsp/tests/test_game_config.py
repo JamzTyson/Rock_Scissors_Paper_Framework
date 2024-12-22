@@ -2,8 +2,8 @@
 
 import pytest
 
-from rsp.rsp import GameOptions
-from rsp.tests.config_data import valid_data, invalid_data
+from ..rsp import GameOptions
+from ..tests.config_data import valid_data, invalid_data
 
 
 @pytest.mark.parametrize('choice_names, expected_exception', invalid_data())
