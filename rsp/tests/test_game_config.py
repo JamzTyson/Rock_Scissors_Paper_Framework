@@ -17,7 +17,7 @@ def test_invalid_choices(choice_names, expected_exception):
 def test_names(choice_names, expected_names):
     """GameOptions.choices matches initialization argument."""
     config = GameOptions(choice_names)
-    assert config.names == expected_names['choices']
+    assert config.names == expected_names['valid_HandNames']
 
 
 @pytest.mark.parametrize("choices, expected", valid_data())

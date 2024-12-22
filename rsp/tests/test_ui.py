@@ -29,7 +29,7 @@ def display_manager():
 def test_name(choice_names, expected, display_manager):
     """UI.names matches validated Hand names."""
     dm = display_manager(choice_names)
-    assert dm.names == expected['choices']
+    assert dm.names == expected['valid_HandNames']
 
 
 def test_get_user_input(display_manager):  # pylint: disable=W0621

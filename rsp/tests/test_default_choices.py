@@ -31,7 +31,7 @@ def test_odd_number():
 def test_not_start_with_q():
     """No choice can begin with QUIT_KEY (default: 'Q')."""
     for choice in DEFAULT_CHOICE_NAMES:
-        assert not choice[0].upper() == QUIT_KEY, f"Bad option: {choice}"
+        assert choice[0].upper() != QUIT_KEY, f"Bad option: {choice}"
 
 
 def test_not_start_with_space():
