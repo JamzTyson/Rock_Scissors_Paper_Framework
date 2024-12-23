@@ -1,5 +1,7 @@
 # Modular Framework for Rock-Paper-Scissors Game.
 
+![Rock Paper Scissors image](assets/rsp.png)
+
 *A solo game of "Rock, Paper, Scissors" against the computer, implemented in
 modern Python.*
 
