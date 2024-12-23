@@ -1,20 +1,36 @@
-# Classic Rock / Scissors / Paper Game
+# Rock, Scissors, Paper framework
 
 *A solo game of "Rock, Paper, Scissors" against the computer, implemented in
 modern Python.*
+
+## Purpose
+This project provides a modular and extensible framework for creating and
+experimenting with the Rock-Paper-Scissors game and its variants.
+
+While the default game implements the classic three-choice version
+(Rock, Paper, Scissors) with a simple Terminal interface, the architecture
+supports:
+
+- Adding more choices with cyclic rules
+(e.g., Rock-Paper-Scissors-Lizard-Batman).
+- Adding a more complex or graphical interface.
+- Customizing input handling and game logic.
+- Adding more players.
+- Adding more advanced strategies for the computer player.
+- Defining new rules and behaviors.
 
 ## Overview
 
 A dynamic implementation of "Rock, Paper, Scissors" against the computer,
 with support for additional choices. The game uses cyclic rules to determine
 the winner, ensuring every option beats some choices and is beaten by an equal
-number of other choices. Thus there must be an odd number of choices.
+number of other choices, thus there must be an odd number of choices.
 
 ## Features
 
 - Play the classic version of "Rock, Paper, Scissors."
-- Extend the game with custom rules by adding more choices.
-- Unit tests (pytest) are provided to validate rule sets for custom CHOICES.
+- Extend the game with custom rules, more choices.
+- Unit tests (pytest) are provided to validate game logic.
 
 ## How It Works
 
@@ -55,7 +71,7 @@ If you make changes to CHOICES, ensure that you run
 
 ### Prerequisites
 
-- Python 3.10 or higher.
+- Python 3.12+.
 - Pytest
 
 See the [pyproject.toml](pyproject.toml) file for full details.
@@ -98,7 +114,7 @@ python rsp.py
 
 Contributions are welcome! If you have ideas for new features, extended rules,
 or bug fixes, feel free to submit a pull request. Please ensure your changes
-are well-documented and tested.
+are well-documented and accompanied by pytests if applicable.
 
 ## License
 
