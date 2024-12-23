@@ -1,4 +1,4 @@
-# Rock, Scissors, Paper framework
+# Modular Framework for Rock-Paper-Scissors Game.
 
 *A solo game of "Rock, Paper, Scissors" against the computer, implemented in
 modern Python.*
