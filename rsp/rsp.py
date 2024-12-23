@@ -81,9 +81,18 @@ class Scores:
 
 
 class GameOptions:
-    """Configuration object.
+    """Game configuration for defining choices and rules.
 
-    Game choices define the Hand names and their menu keys.
+    This class allows for custom configurations of game choices. It ensures
+    that the rules of the game remain consistent by validating the provided
+    choices.
+
+    Designed for extensibility:
+        - Add new choices with unique starting letters.
+        - Ensure cyclic relationships between choices.
+
+    Example:
+        config = GameOptions(('Rock', 'Paper', 'Scissors', 'Lizard', 'Batman'))
     """
 
     def __init__(self, choice_names: HandNames) -> None:
@@ -91,6 +100,9 @@ class GameOptions:
 
         choice names will be stripped of leading / trailing whitespace
         during validation.
+
+        Args:
+            choice_names (HandNames): A tuple of names for each Hand option.
         """
         self._hand_names: HandNames = self._validate_choices(choice_names)
         self._choice_keys: list[str] = self._generate_choice_keys()
@@ -115,23 +127,25 @@ class GameOptions:
 
     @staticmethod
     def _validate_choices(choices: HandNames) -> HandNames:
-        """There must be an odd number of at least 3 choices.
+        """Validates the provided game choices.
 
-        The number of choices must be odd so that each choice beats the
-        same number of choices as it is beaten by. Three choices is the
-        minimum number required to ensure that each choice can win and lose.
-        Each choice must start with a unique letter (case-insensitive) as
-        choices are made by selecting the first letter.
+        Ensures the game configuration adheres to the rules:
+            - Odd number of at least 3 choices.
+            Required so that each choice beats the same number of choices
+            as it is beaten by.
+            - Each choice starts with a unique letter (case-insensitive).
+            Required as choices are made by selecting the first letter.
+            - Choices must be unique.
 
         Args:
             choices (HandNames): The hand names to choose from.
 
         Raises:
-            TypeError: The choices are not iterable[str, ...].
+            TypeError: The choices are not tuple[str, ...].
             ValueError: The choices are invalid.
 
         Returns:
-            HandNames: The validated choices.
+            HandNames: The validated tuple of choice names.
         """
         if not isinstance(choices, tuple):
             raise TypeError("Tuple required. "
