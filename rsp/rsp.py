@@ -1,12 +1,23 @@
-"""Classic Rock / Scissors / Paper Game.
+"""Modular Framework for Rock-Paper-Scissors Game.
 
-A solo game of 'Rock Paper Scissors' against the computer.
+A flexible framework for building and customizing Rock-Paper-Scissors
+and its variants. It is designed to be easily extended to include additional
+choices and rules while maintaining the cyclic win-loss relationships.
+
+The game is playable as an in-terminal solo game of 'Rock Paper Scissors'
+against the computer.
 
 Rules:
 The choices are cyclically arranged such that:
     - Rock beats Scissors
     - Scissors beats Paper
     - Paper beats Rock
+
+Features:
+    - Validates custom game configurations.
+    - Supports arbitrary numbers of choices, provided they meet specific
+    criteria (e.g., odd number of choices, unique starting letters).
+    - Modular components for game logic, user interface, and scoring.
 
 The game may be extended with more choices that follow the rules:
     1. Each item beats (n-1)//2 predecessors and is beaten by the other
