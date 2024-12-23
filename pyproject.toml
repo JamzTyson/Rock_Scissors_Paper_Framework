@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "rockpaperscissors"
-version = "0.1.0"
-description = "A solo game of \"Rock, Paper, Scissors\" against the computer, implemented in modern Python."
+name = "rsp"
+version = "1.0.0"
+description = "A modular framework for Rock-Paper-Scissors game."
 authors = ["JamzTyson <151654652+JamzTyson@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10.11"
 
 
 [tool.poetry.group.dev.dependencies]

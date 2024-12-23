@@ -71,7 +71,7 @@ If you make changes to CHOICES, ensure that you run
 
 ### Prerequisites
 
-- Python 3.12+.
+- Python 3.10.11 or later.
 - Pytest
 
 See the [pyproject.toml](pyproject.toml) file for full details.

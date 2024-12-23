@@ -127,7 +127,7 @@ class GameOptions:
 
     @staticmethod
     def _validate_choices(choices: HandNames) -> HandNames:
-        """Validates the provided game choices.
+        """Validate the provided game choices.
 
         Ensures the game configuration adheres to the rules:
             - Odd number of at least 3 choices.
