@@ -67,7 +67,7 @@ The corresponding rules would be:
 * Rock crushes Lizard.
 
 If you make changes to CHOICES, ensure that you run
-[test_default_choices.py](rsp/tests/test_default_choices.py).
+[test_default_choices.py](rock_scissors_paper_framework/tests/test_default_choices.py).
 
 ## Getting Started
 

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "rsp"
+name = "rock_scissors_paper_framework"
 version = "1.0.0"
 description = "A modular framework for Rock-Paper-Scissors game."
 authors = ["JamzTyson <151654652+JamzTyson@users.noreply.github.com>"]
