@@ -13,6 +13,9 @@ packages = [
 ]
 exclude = ["rock_scissors_paper_framework/tests"]
 
+[tool.poetry.scripts]
+rsp = "rock_scissors_paper_framework.rsp:main"
+
 
 [tool.poetry.dependencies]
 python = "^3.10.11"
