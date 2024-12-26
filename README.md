@@ -160,6 +160,14 @@ deactivate
 4. The winner is determined based on the [predefined rules](#default-rules).
 5. Type `Q` to quit the game.
 
+**Note:** If the game has been [installed](#installing-the-game), the `rsp.py`
+file can be run using the command:
+
+```bash
+$ rsp
+```
+
+
 **Example Session:**
 
 ```bash
