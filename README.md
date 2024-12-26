@@ -32,7 +32,8 @@ number of other choices, thus there must be an odd number of choices.
 ## Features
 
 - Play the classic version of "Rock, Paper, Scissors."
-- Extend the game with custom rules, more choices.
+- Extend the game with custom rules, more choices, or alternative
+user interface.
 - Unit tests (pytest) are provided to validate game logic.
 
 ## How It Works
