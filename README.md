@@ -107,7 +107,7 @@ git clone https://github.com/JamzTyson/Rock_Scissors_Paper.git
 Navigate to the project directory:
 
 ```bash
-cd Rock_Scissors_Paper
+cd rock_scissors_paper_framework
 ```
 
 And then launch the game with:
