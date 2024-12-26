@@ -1,6 +1,7 @@
-# Modular Framework for Rock-Paper-Scissors Game.
+# Modular Framework for the Rock-Paper-Scissors Game.
 
-![Rock Paper Scissors image](assets/rsp.png)
+![Rock Paper Scissors image](https://raw.githubusercontent.com/JamzTyson/Rock_Scissors_Paper/main/assets/rsp.png)
+
 
 *A solo game of "Rock, Paper, Scissors" against the computer, implemented in
 modern Python.*
@@ -16,7 +17,7 @@ supports:
 - Adding more choices with cyclic rules
 (e.g., Rock-Paper-Scissors-Lizard-Batman).
 - Adding a more complex or graphical interface.
-- Customizing input handling and game logic.
+- Customising input handling and game logic.
 - Adding more players.
 - Adding more advanced strategies for the computer player.
 - Defining new rules and behaviors.
@@ -55,16 +56,18 @@ CHOICES = ('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors')
 
 The corresponding rules would be:
 
-* Scissors decapitates Lizard.
-* Scissors cuts Paper.
-* Lizard eats Paper.
-* Lizard poisons Batman.
-* Paper disproves Batman.
-* Paper covers Rock.
-* Batman vaporizes Rock.
-* Rock crushes Scissors.
-* Batman smashes Scissors.
-* Rock crushes Lizard.
+- **Rock blunts Scissors:** Rock wins.
+- **Rock crushes Lizard:** Rock wins.
+- **Batman vaporizes Rock:** Batman wins.
+- **Batman smashes Scissors:** Batman wins.
+- **Paper disproves Batman:** Paper wins.
+- **Paper wraps Rock:** Paper wins.
+- **Lizard eats Paper:** Lizard wins.
+- **Lizard poisons Batman:** Lizard wins.
+- **Scissors decapitate Lizard:** Scissors win.
+- **Scissors cut Paper:** Scissors win.
+- **Draw:** Both choose the same option.
+
 
 If you make changes to CHOICES, ensure that you run
 [test_default_choices.py](rock_scissors_paper_framework/tests/test_default_choices.py).
@@ -74,53 +77,128 @@ If you make changes to CHOICES, ensure that you run
 ### Prerequisites
 
 - Python 3.10.11 or later.
-- Pytest
+- Pytest (for running unit tests)
 
 See the [pyproject.toml](pyproject.toml) file for full details.
 
-## Running the Game
+## Running the game
 
-1. Clone this repository:
+It is not necessary to install this game to run it, though instructions for
+installing are provided later in this README.
+
+The quickest way to run the latest version of the game is to simply
+download the raw `.py` file from the
+[GitHub Repository](https://github.com/JamzTyson/Rock_Scissors_Paper/blob/main/rock_scissors_paper_framework/rsp.py)
+and run it from a terminal window:
+
+```bash
+python3 /path/to/rsp.py
+```
+
+## Cloning this repository:
 
 ```bash
 git clone https://github.com/JamzTyson/Rock_Scissors_Paper.git
 ```
 
-2. Navigate to the project directory:
+**Running the game from the cloned repository:**
+
+Navigate to the project directory:
 
 ```bash
 cd Rock_Scissors_Paper
 ```
 
-3. Run the game:
+And then launch the game with:
 
 ```bash
-python rsp.py
+python3 rsp.py
+```
+
+
+## Installing the Game
+
+### Installing from PyPi
+
+The recommended way to install the game is to install for the
+current user with [pipx](https://pipx.pypa.io/latest/installation/).
+
+```bash
+pipx install rock-scissors-paper-framework
+```
+
+**Note:** The PyPI package name is rock-scissors-paper-framework, but
+the package is imported as rock_scissors_paper_framework in your Python code.
+After installation, the main entry point for the game is the
+`rsp` command or `rsp.py`.
+
+If you prefer local development or customisation, install the package
+within a virtual environment:
+
+```bash
+# Create and activate a virtual environment:
+python3 -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+
+# Install the package using pip (or pipx):
+pip install rock-scissors-paper-framework
+
+ # Run the application:
+rsp
+
+ # Deactivate the virtual environment when finished:
+deactivate
 ```
 
 ## How to Play
 
-* Choose an option by typing its initial letter (e.g., R for Rock, S for Scissors).
-* The computer randomly selects its option.
-* The winner is determined based on the predefined rules.
-* Type `Q` to quit the game.
+1. Start the game by running rsp.py
+2. When prompted, choose an option by typing its initial letter
+(e.g., R for Rock, S for Scissors). The input is case-insensitive.
+3. The computer selects its option randomly.
+4. The winner is determined based on the [predefined rules](#default-rules).
+5. Type `Q` to quit the game.
+
+**Example Session:**
+
+```bash
+Player: 0 | Computer: 0
+
+[R]ock, [P]aper, [S]cissors, or [Q] to quit:
+```
+
+Player enters R, S, or P (case-insensitive):
+
+```bash
+r
+```
+
+```bash
+You = Rock : Computer = Scissors : YOU WIN
+Player: 1 | Computer: 0
+```
 
 ### Default Rules:
 
-- Rock blunts Scissors: Rock wins
-- Scissors cut Paper: Scissors wins
-- Paper wraps Rock: Paper wins
-- Game drawn when the player and the computer choose the same option.
+- **Rock blunts Scissors:** Rock wins.
+- **Scissors cut Paper:** Scissors win.
+- **Paper wraps Rock:** Paper wins.
+- **Draw:** Both choose the same option.
 
 ## Contributing
 
-Contributions are welcome! If you have ideas for new features, extended rules,
-or bug fixes, feel free to submit a pull request. Please ensure your changes
-are well-documented and accompanied by pytests if applicable.
+Contributions are welcome!
+
+If you encounter any bugs, please open an issue on the GitHub repository.
+
+If you have ideas for new features, extended rules, or bug fixes, feel free
+to submit a pull request. Please ensure your changes are well-documented and
+are accompanied by pytests (if applicable).
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE)
+file for details.
 
 **Author:** JamzTyson
 
