@@ -39,11 +39,11 @@ user interface.
 ## How It Works
 
 Rather than hard coded "Scissor beats Paper" rules, the game generates rules
-dynamically from a list of CHOICES, following the rules:
+dynamically from a list of choices, following the rules:
 
 1. Each item beats `(n-1)//2` predecessors and is beaten by `(n-1)//2`
 successors, where `n` is the total number of choices.
-2. The total number of choices (`CHOICES`) must always be odd.
+2. The total number of choices (`DEFAULT_CHOICE_NAMES`) must always be odd.
 3. Choices cannot start with the letter 'Q' (reserved for "Quit").
 4. All choices must start with a unique letter.
 
@@ -52,7 +52,7 @@ successors, where `n` is the total number of choices.
 An example configuration with five options:
 
 ```python
-CHOICES = ('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors')
+DEFAULT_CHOICE_NAMES = ('Rock', 'Batman', 'Paper', 'Lizard', 'Scissors')
 ```
 
 The corresponding rules would be:
