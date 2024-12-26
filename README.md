@@ -69,7 +69,7 @@ The corresponding rules would be:
 - **Draw:** Both choose the same option.
 
 
-If you make changes to CHOICES, ensure that you run
+If you make changes to DEFAULT_CHOICE_NAMES, ensure that you run
 [test_default_choices.py](rock_scissors_paper_framework/tests/test_default_choices.py).
 
 ## Getting Started
