@@ -84,7 +84,7 @@ See the [pyproject.toml](pyproject.toml) file for full details.
 ## Running the game
 
 It is not necessary to install this game to run it, though instructions for
-installing are provided later in this README.
+installing are provided in the [Installation](#installing-the-game) section.
 
 The quickest way to run the latest version of the game is to simply
 download the raw `.py` file from the
