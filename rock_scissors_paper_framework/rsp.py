@@ -259,14 +259,13 @@ class UI:
 
     @staticmethod
     def clear_screen() -> None:
-        """Clear Terminal ui."""
-        if 'TERM' in os.environ:
-            # Should work cross-platform for most terminals.
-            os.system('cls' if os.name == 'nt' else 'clear')
-        else:
-            print('\n')  # In Thonny we settle for a new line.
-            # Escape codes may work for other Terminal emulators.
-            print("\n\033[H\033[J", end="")
+        """Clear the terminal screen or fallback to printing a newline."""
+        if os.name == 'nt':  # Windows
+            os.system('cls')
+        elif 'TERM' in os.environ:  # Unix-like with terminal support
+            os.system('clear')
+        else:  # Fallback
+            print('\n')
 
 
 @dataclass
